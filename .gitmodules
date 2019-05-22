@@ -1,0 +1,3 @@
+[submodule "spacy_dependency_pattern_builder"]
+	path = spacy_dependency_pattern_builder
+	url = https://github.com/cyclecycle/spacy-dependency-pattern-builder.git
