@@ -95,10 +95,7 @@ def refine_pattern(doc, pattern, pos_example, neg_examples):
         DEFAULT_REFINE_PATTERN_FEATURE_COMBINATIONS,
         DEFAULT_REFINE_PATTERN_FEATURE_DICT
     )
-    # print(len(variations))
-    # successful_patterns = []
     for pattern_variation in variations:
-        # pprint(new_pattern)
         matches = pattern_variation.match(doc)
         matches_neg_example = False
         for neg_example in neg_examples:
@@ -106,6 +103,4 @@ def refine_pattern(doc, pattern, pos_example, neg_examples):
                 matches_neg_example = True
         matches_pos_example = pos_example in matches
         if not matches_neg_example and matches_pos_example:
-            # successful_patterns.append(pattern_variation)
             return pattern_variation
-    # return successful_patterns

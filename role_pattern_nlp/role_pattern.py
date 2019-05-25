@@ -6,8 +6,10 @@ class RolePattern():
     def __init__(self, spacy_dep_pattern, token_labels):
         self.spacy_dep_pattern = spacy_dep_pattern
         self.token_labels = token_labels
+        self.name = 'pattern'
 
     def match(self, doc):
+        # TODO docs can be a single doc or list
         pattern = {'spacy_dep_pattern': self.spacy_dep_pattern, 'token_labels': self.token_labels}
         matches = util.find_matches(doc, pattern, 'pattern')
         return matches

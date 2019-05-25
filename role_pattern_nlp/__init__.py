@@ -1,3 +1,5 @@
 from role_pattern_nlp.role_pattern_builder import RolePatternBuilder
 from role_pattern_nlp.role_pattern import RolePattern
 from role_pattern_nlp import constants
+from role_pattern_nlp.role_pattern_set import RolePatternSet
+from role_pattern_nlp.role_pattern_visualiser import visualise_role_pattern

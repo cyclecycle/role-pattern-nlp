@@ -1,2 +1,0 @@
-from role_pattern import RolePattern
-from role_pattern_builder import RolePatternBuilder
