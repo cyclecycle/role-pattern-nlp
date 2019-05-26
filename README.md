@@ -2,7 +2,7 @@
 
 Build and match linguistic patterns for role labelling. Provides a example-driven approach to generate and refine patterns.
 
-This approach uses graph-based pattern matching, built on SpaCy.
+Uses graph-based pattern matching, built on SpaCy.
 
 ## Example
 
@@ -22,7 +22,7 @@ match_example = {
     'arg2': [doc[3]],  # [shaping]
 }
 
-''' Create a dictionary of all the features we want our RolePatternBuilder to have access to
+''' Create a dictionary of all the features we want the RolePatternBuilder to have access to
 when building and refining patterns '''
 feature_dict = {'DEP': 'dep_', 'TAG': 'tag_'}
 
