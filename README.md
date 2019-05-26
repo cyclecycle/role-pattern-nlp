@@ -1,4 +1,4 @@
-# Role Pattern NLP
+# role-pattern
 
 (README IN PROGRESS)
 

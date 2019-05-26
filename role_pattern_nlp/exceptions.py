@@ -1,0 +1,2 @@
+class FeaturesNotInFeatureDictError(Exception):
+    pass

@@ -113,3 +113,20 @@ def find_matches(doc, pattern, pattern_name='pattern'):
                 match_item[label].append(token)
         match_list.append(match_item)
     return match_list
+
+
+def features_are_in_dependency_pattern(features, pattern):
+    for pattern_element in pattern:
+        for feature in features:
+            if feature not in pattern_element['PATTERN']:
+                return False
+    return True
+
+
+def features_are_in_role_pattern(features, role_pattern):
+    spacy_dependency_pattern = role_pattern.spacy_dep_pattern
+    return features_are_in_dependency_pattern(features, spacy_dependency_pattern)
+
+
+def flatten_list(list_):
+    return list(itertools.chain(*list_))
