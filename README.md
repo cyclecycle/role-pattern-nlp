@@ -1,13 +1,13 @@
-# role-pattern
+# Role Pattern
 
-Build and match linguistic patterns for role labelling. Provides a data-driven approach to generate and refine patterns.
+Build and match linguistic patterns for role labelling. Provides a example-driven approach to generate and refine patterns.
 
-This approach uses graph-based pattern matching, built on SpaCy. Patterns are generated using spacy-pattern-builder.
+This approach uses graph-based pattern matching, built on SpaCy.
 
 ## Example
 
 ```python
-# First, parse a string to create a SpaCy Doc object.
+# First, parse a string to create a SpaCy Doc object
 import en_core_web_sm
 text = "Forging involves the shaping of metal using localized compressive forces."
 nlp = en_core_web_sm.load()
@@ -22,7 +22,8 @@ match_example = {
     'arg2': [doc[3]],  # [shaping]
 }
 
-# Create a dictionary of all the features we want our RolePatternBuilder to have access to when building and refining patterns
+''' Create a dictionary of all the features we want our RolePatternBuilder to have access to
+when building and refining patterns '''
 feature_dict = {'DEP': 'dep_', 'TAG': 'tag_'}
 
 # Instantiate the pattern builder
@@ -41,6 +42,6 @@ print(matches)
 
 ## Built with
 
-- Spacy - DependencyMatcher
-- Spacy pattern builder
-- networkx
+- [SpaCy](https://spacy.io) - DependencyMatcher
+- [SpaCy pattern builder](https://github.com/cyclecycle/spacy-pattern-builder)
+- [networkx](https://github.com/networkx/networkx) - Used by SpaCy pattern builder
