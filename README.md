@@ -4,7 +4,15 @@ Build and match linguistic patterns for role labelling. Provides a example-drive
 
 Uses graph-based pattern matching, built on SpaCy.
 
-## Example
+## Installation
+
+With pip:
+
+```
+pip install role-pattern-nlp
+```
+
+## Example usage
 
 ```python
 # First, parse a string to create a SpaCy Doc object

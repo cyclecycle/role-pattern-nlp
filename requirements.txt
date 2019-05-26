@@ -27,6 +27,5 @@ srsly==0.0.5
 thinc==7.0.4
 tqdm==4.32.1
 urllib3==1.25.3
-visualise-spacy-tree==0.0.4
 wasabi==0.2.2
 wcwidth==0.1.7
