@@ -14,7 +14,8 @@ setuptools.setup(
     url="https://github.com/cyclecycle/role-pattern-nlp",
     packages=setuptools.find_packages(),
     install_requires=[
-        'spacy-pattern-builder'
+        'spacy',
+        'spacy-pattern-builder',
     ],
     classifiers=[
         "Programming Language :: Python :: 3",
