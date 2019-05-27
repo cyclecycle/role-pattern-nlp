@@ -15,7 +15,7 @@ neg_examples = [{
     'prep': [doc[8]],  # [to]
     'arg': [doc[10]],  # [data]
 }]
-# pprint(pos_example)
+
 feature_dict = {'DEP': 'dep_', 'TAG': 'tag_', 'LOWER': 'lower_'}
 role_pattern_builder = RolePatternBuilder(feature_dict)
 pattern = role_pattern_builder.build(
@@ -23,11 +23,11 @@ pattern = role_pattern_builder.build(
 )
 matches = pattern.match(doc)
 
-# Our pattern matches both our pos_example and neg_examples
+# Our pattern matches both the pos_example and neg_examples
 assert pos_example in matches
 assert neg_examples[0] in matches
 
-# refine yields pattern variants that match the pos_example but not the neg_examples
+# RolePatternBuilder.refine() yields pattern variants that match the pos_example but not the neg_examples
 role_pattern_variants = role_pattern_builder.refine(doc, pattern, pos_example, neg_examples)
 for role_pattern_variant in role_pattern_variants:
     matches = role_pattern_variant.match(doc)

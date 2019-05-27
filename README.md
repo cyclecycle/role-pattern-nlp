@@ -48,6 +48,8 @@ print(matches)
 '''
 ```
 
+See examples/ for demonstration as to how to refine a pattern using negative examples.
+
 ## Built with
 
 - [SpaCy](https://spacy.io) - DependencyMatcher
