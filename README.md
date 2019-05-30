@@ -1,6 +1,6 @@
 # Role Pattern
 
-Build and match linguistic patterns for role labelling. Provides a example-driven approach to generate and refine patterns.
+Build and match linguistic patterns for role labelling. Provides an example-driven approach to generate and refine patterns.
 
 Uses graph-based pattern matching, built on SpaCy.
 
