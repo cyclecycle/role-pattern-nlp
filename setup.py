@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="role-pattern-nlp",
-    version="0.0.1",
+    version="0.0.2",
     author="Nicholas Morley",
     author_email="nick.morley111@gmail.com",
     description=" Build and match patterns for semantic role labelling",

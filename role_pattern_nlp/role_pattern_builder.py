@@ -46,6 +46,7 @@ def build_role_pattern(doc, match_example, feature_dict=DEFAULT_BUILD_PATTERN_TO
     util.annotate_token_depth(doc)
     nx_graph = util.doc_to_nx_graph(doc)
     tokens = [sublist for _list in match_example.values() for sublist in _list]
+    tokens = [doc[token.i] for token in tokens]  # Ensure that the tokens have the ._.depth attribute
     match_tokens = util.smallest_connected_subgraph(tokens, nx_graph, doc)
     token_labels = build_pattern_label_list(match_tokens, match_example)
     spacy_dep_pattern = build_dependency_pattern(
