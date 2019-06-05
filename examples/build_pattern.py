@@ -21,7 +21,7 @@ feature_dict = {'DEP': 'dep_', 'TAG': 'tag_'}
 role_pattern_builder = RolePatternBuilder(feature_dict)
 
 #  Build a pattern. It will use all the features in the feature_dict by default
-role_pattern = role_pattern_builder.build(doc, match_example)  
+role_pattern = role_pattern_builder.build(match_example)  
 
 # Match against any doc with the role_pattern
 matches = role_pattern.match(doc)
