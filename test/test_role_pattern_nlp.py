@@ -32,7 +32,7 @@ def test_build_pattern_and_find_matches():
     feature_dict = {'DEP': 'dep_', 'TAG': 'tag_', 'LOWER': 'lower_'}
     role_pattern_builder = RolePatternBuilder(feature_dict)
     for match_example in match_examples:
-        role_pattern = role_pattern_builder.build(doc, match_example)
+        role_pattern = role_pattern_builder.build(match_example)
         matches = role_pattern.match(doc)
         assert match_example in matches
 
@@ -52,13 +52,13 @@ def test_refine_pattern():
     feature_dict = {'DEP': 'dep_', 'TAG': 'tag_', 'LOWER': 'lower_'}
     role_pattern_builder = RolePatternBuilder(feature_dict)
     pattern = role_pattern_builder.build(
-        doc, match_example, features=['DEP']
+        match_example, features=['DEP']
     )
     matches = pattern.match(doc)
     assert match_example in matches
     assert neg_examples[0] in matches
     # pattern = role_pattern_builder.refine(doc, pattern, match_example, neg_examples)
-    refined_role_pattern_variants = role_pattern_builder.refine(doc, pattern, match_example, neg_examples)
+    refined_role_pattern_variants = role_pattern_builder.refine(pattern, match_example, neg_examples)
     for role_pattern_variant in refined_role_pattern_variants:
         matches = role_pattern_variant.match(doc)
         assert match_example in matches
@@ -76,7 +76,7 @@ def test_validate_features():
     features = ['DEP', 'TAG', 'LOWER']
     for match_example in match_examples:
         with pytest.raises(FeaturesNotInFeatureDictError):
-            role_pattern_builder.build(doc, match_example, features=features)
+            role_pattern_builder.build(match_example, features=features)
 
 
 # def test_role_pattern_set():

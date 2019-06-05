@@ -92,11 +92,6 @@ def build_matcher(vocab, pattern_dict):
         matcher.add(name, None, dep_pattern)
     return matcher
 
-# def build_matcher(vocab, spacy_dep_pattern):
-#     matcher = DependencyTreeMatcher(vocab)
-#     matcher.add('pattern', None, spacy_dep_pattern)
-#     return matcher
-
 
 def find_matches(doc, pattern, pattern_name='pattern'):
     matcher = build_matcher(doc.vocab, {pattern_name: pattern})
@@ -130,3 +125,10 @@ def features_are_in_role_pattern(features, role_pattern):
 
 def flatten_list(list_):
     return list(itertools.chain(*list_))
+
+
+def match_example_doc(match_example):
+    token_lists = list(match_example.values())
+    tokens = flatten_list(token_lists)
+    doc = tokens[0].doc
+    return doc

@@ -10,29 +10,28 @@ class RolePatternBuilder():
     def __init__(self, feature_dict):
         self.feature_dict = feature_dict
 
-    def build(self, doc, match_example, features=[]):
+    def build(self, match_example, features=[]):
         if not features:
             features = self.feature_dict.keys()
         self.validate_features(features)
         feature_dict = {k: v for k, v in self.feature_dict.items() if k in features}
         role_pattern = build_role_pattern(
-            doc,
             match_example,
             feature_dict=feature_dict
         )
         role_pattern.builder = self
         return role_pattern
 
-    def refine(self, doc, pattern, pos_example, neg_examples, feature_sets=DEFAULT_REFINE_PATTERN_FEATURE_COMBINATIONS):
+    def refine(self, pattern, pos_example, neg_examples, feature_sets=DEFAULT_REFINE_PATTERN_FEATURE_COMBINATIONS):
         all_features = set(util.flatten_list(feature_sets))
         self.validate_features(all_features)
         # Check that all required features present in spacy_dependency_pattern.
         # If not, build an intermediary pattern with the required features.
         all_features_are_in_pattern = util.features_are_in_role_pattern(all_features, pattern)
         if not all_features_are_in_pattern:
-            pattern = self.build(doc, pos_example)  # Uses all the features in the builder's feature_dict
+            pattern = self.build(pos_example)  # Uses all the features in the builder's feature_dict
         refined_pattern_variants = yield_refined_pattern_variants(
-            doc, pattern, pos_example, neg_examples, feature_sets
+            pattern, pos_example, neg_examples, feature_sets
         )
         return refined_pattern_variants
 
@@ -42,11 +41,12 @@ class RolePatternBuilder():
             raise FeaturesNotInFeatureDictError('RolePatternBuilder received a list of features which includes features that are not present in the feature_dict. Features not present: {}'.format(', '.join(features_not_in_feature_dict)))
 
 
-def build_role_pattern(doc, match_example, feature_dict=DEFAULT_BUILD_PATTERN_TOKEN_FEATURE_DICT):
-    util.annotate_token_depth(doc)
-    nx_graph = util.doc_to_nx_graph(doc)
+def build_role_pattern(match_example, feature_dict=DEFAULT_BUILD_PATTERN_TOKEN_FEATURE_DICT):
     tokens = [sublist for _list in match_example.values() for sublist in _list]
-    tokens = [doc[token.i] for token in tokens]  # Ensure that the tokens have the ._.depth attribute
+    doc = tokens[0].doc
+    util.annotate_token_depth(doc)
+    tokens = [doc[token.i] for token in tokens]  # Ensure that the tokens have the newly added depth attribute
+    nx_graph = util.doc_to_nx_graph(doc)
     match_tokens = util.smallest_connected_subgraph(tokens, nx_graph, doc)
     token_labels = build_pattern_label_list(match_tokens, match_example)
     spacy_dep_pattern = build_dependency_pattern(
@@ -80,12 +80,18 @@ def yield_role_pattern_permutations(role_pattern, feature_sets):
         yield role_pattern_variant
 
 
-def yield_refined_pattern_variants(doc, role_pattern, pos_example, neg_examples, feature_sets):
+def yield_refined_pattern_variants(role_pattern, pos_example, neg_examples, feature_sets):
+    pos_example_doc = util.match_example_doc(pos_example)
     role_pattern_variants = yield_role_pattern_permutations(role_pattern, feature_sets)
     for role_pattern_variant in role_pattern_variants:
-        matches = role_pattern_variant.match(doc)
-        neg_example_matches = [m for m in matches if m in neg_examples]
-        pattern_matches_neg_example = any(neg_example_matches)
+        matches = role_pattern_variant.match(pos_example_doc)
         pattern_matches_pos_example = pos_example in matches
-        if not pattern_matches_neg_example and pattern_matches_pos_example:
+        neg_example_matches = []
+        for neg_example in neg_examples:
+            doc = util.match_example_doc(neg_example)
+            matches = role_pattern_variant.match(doc)
+            if neg_example in matches:
+                neg_example_matches.append(neg_example)
+        pattern_matches_neg_examples = bool(neg_example_matches)
+        if not pattern_matches_neg_examples and pattern_matches_pos_example:
             yield role_pattern_variant
