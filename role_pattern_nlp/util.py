@@ -1,6 +1,5 @@
 import itertools
 from spacy.tokens import Token
-from spacy.matcher import DependencyTreeMatcher
 import networkx as nx
 
 
@@ -83,44 +82,6 @@ def smallest_connected_subgraph(with_tokens, nx_graph, doc):
             if t not in tokens_touched:
                 tokens_touched.append(t)
     return tokens_touched
-
-
-def build_matcher(vocab, pattern_dict):
-    matcher = DependencyTreeMatcher(vocab)
-    for name, pattern in pattern_dict.items():
-        dep_pattern = pattern['spacy_dep_pattern']
-        matcher.add(name, None, dep_pattern)
-    return matcher
-
-
-def find_matches(doc, pattern, pattern_name='pattern'):
-    matcher = build_matcher(doc.vocab, {pattern_name: pattern})
-    matches = matcher(doc)
-    labels = pattern['token_labels']
-    match_list = []
-    for match_id, token_idxs in matches:
-        pattern_name = matcher.vocab.strings[match_id]
-        tokens = [doc[idx] for idx in token_idxs]
-        tokens = sorted(tokens, key=lambda t: t.i)
-        match_item = {label: [] for label in pattern['token_labels'] if label}
-        for label, token in zip(labels, tokens):
-            if label:
-                match_item[label].append(token)
-        match_list.append(match_item)
-    return match_list
-
-
-def features_are_in_dependency_pattern(features, pattern):
-    for pattern_element in pattern:
-        for feature in features:
-            if feature not in pattern_element['PATTERN']:
-                return False
-    return True
-
-
-def features_are_in_role_pattern(features, role_pattern):
-    spacy_dependency_pattern = role_pattern.spacy_dep_pattern
-    return features_are_in_dependency_pattern(features, spacy_dependency_pattern)
 
 
 def flatten_list(list_):

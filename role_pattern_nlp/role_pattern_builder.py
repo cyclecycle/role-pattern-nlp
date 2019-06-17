@@ -1,8 +1,9 @@
-from spacy_pattern_builder import build_dependency_pattern, yield_pattern_permutations
+import spacy_pattern_builder
 from role_pattern_nlp.role_pattern import RolePattern
+from role_pattern_nlp import validate
 from role_pattern_nlp import util
 from role_pattern_nlp.constants import DEFAULT_BUILD_PATTERN_TOKEN_FEATURE_DICT, DEFAULT_REFINE_PATTERN_FEATURE_COMBINATIONS, DEFAULT_REFINE_PATTERN_FEATURE_DICT
-from role_pattern_nlp.exceptions import FeaturesNotInFeatureDictError
+from role_pattern_nlp.exceptions import FeaturesNotInFeatureDictError, RolePatternDoesNotMatchExample
 
 
 class RolePatternBuilder():
@@ -27,7 +28,7 @@ class RolePatternBuilder():
         self.validate_features(all_features)
         # Check that all required features present in spacy_dependency_pattern.
         # If not, build an intermediary pattern with the required features.
-        all_features_are_in_pattern = util.features_are_in_role_pattern(all_features, pattern)
+        all_features_are_in_pattern = validate.features_are_in_role_pattern(all_features, pattern)
         if not all_features_are_in_pattern:
             pattern = self.build(pos_example)  # Uses all the features in the builder's feature_dict
         refined_pattern_variants = yield_refined_pattern_variants(
@@ -44,17 +45,23 @@ class RolePatternBuilder():
 def build_role_pattern(match_example, feature_dict=DEFAULT_BUILD_PATTERN_TOKEN_FEATURE_DICT):
     doc = util.doc_from_match(match_example)
     util.annotate_token_depth(doc)
-    tokens = [sublist for _list in match_example.values() for sublist in _list]
-    tokens = [doc[token.i] for token in tokens]  # Ensure that the tokens have the newly added depth attribute
+    tokens = util.flatten_list(match_example.values())
+    tokens = [doc[token.i] for token in tokens]  # Ensure that tokens have the newly added depth attribute
     nx_graph = util.doc_to_nx_graph(doc)
     match_tokens = util.smallest_connected_subgraph(tokens, nx_graph, doc)
-    token_labels = build_pattern_label_list(match_tokens, match_example)
-    spacy_dep_pattern = build_dependency_pattern(
+    spacy_dep_pattern = spacy_pattern_builder.build_dependency_pattern(
         doc,
         match_tokens,
         feature_dict=feature_dict
     )
+    token_labels = build_pattern_label_list(match_tokens, match_example)
     role_pattern = RolePattern(spacy_dep_pattern, token_labels)
+    match_tokens_depth_order = spacy_pattern_builder.util.sort_by_depth(match_tokens)  # Now, match_tokens should be in the same order as the dependency pattern that will be built
+    token_labels_depth_order = build_pattern_label_list(match_tokens_depth_order, match_example)
+    role_pattern.token_labels_depth_order = token_labels_depth_order
+    pattern_does_match_example = validate.pattern_matches_example(role_pattern, match_example)
+    if not pattern_does_match_example:
+        raise RolePatternDoesNotMatchExample()
     return role_pattern
 
 
@@ -72,7 +79,7 @@ def build_pattern_label_list(match_tokens, match_example):
 def yield_role_pattern_permutations(role_pattern, feature_sets):
     spacy_dependency_pattern = role_pattern.spacy_dep_pattern
     match_token_labels = role_pattern.token_labels
-    dependency_pattern_variants = yield_pattern_permutations(
+    dependency_pattern_variants = spacy_pattern_builder.yield_pattern_permutations(
         spacy_dependency_pattern, feature_sets)
     for dependency_pattern_variant in dependency_pattern_variants:
         assert len(dependency_pattern_variant) == len(spacy_dependency_pattern)

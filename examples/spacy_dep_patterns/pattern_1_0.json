@@ -1,0 +1,36 @@
+[
+  {
+    "SPEC": {
+      "NODE_NAME": "node7"
+    },
+    "PATTERN": {
+      "DEP": "ROOT",
+      "TAG": "VBN",
+      "LOWER": "introduced"
+    }
+  },
+  {
+    "SPEC": {
+      "NODE_NAME": "node5",
+      "NBOR_NAME": "node7",
+      "NBOR_RELOP": ">"
+    },
+    "PATTERN": {
+      "DEP": "nsubjpass",
+      "TAG": "NN",
+      "LOWER": "hypothesis"
+    }
+  },
+  {
+    "SPEC": {
+      "NODE_NAME": "node6",
+      "NBOR_NAME": "node7",
+      "NBOR_RELOP": ">"
+    },
+    "PATTERN": {
+      "DEP": "auxpass",
+      "TAG": "VBD",
+      "LOWER": "was"
+    }
+  }
+]

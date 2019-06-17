@@ -1,8 +1,11 @@
 from pprint import pprint
 import pytest
+import json
 import en_core_web_sm
 from role_pattern_nlp import RolePatternBuilder, RolePatternSet
 from role_pattern_nlp.exceptions import FeaturesNotInFeatureDictError
+import visualise_spacy_tree
+
 
 nlp = en_core_web_sm.load()
 
@@ -11,6 +14,8 @@ doc1 = nlp(text1)
 
 text2 = 'The amyloid-beta oligomer hypothesis was introduced in 1998.'
 doc2 = nlp(text2)
+
+docs = [doc1, doc2]
 
 
 def idxs_to_tokens(doc, idxs):
@@ -22,7 +27,9 @@ build_pattern_and_find_matches_test_cases = [
         'doc': doc1,
         'match_examples': [
             {
-                'slot1': idxs_to_tokens(doc1, [0, 1, 3]),  # [We, introduce, methods]
+                'slot1': idxs_to_tokens(doc1, [0]),  # [We]
+                'slot2': idxs_to_tokens(doc1, [1]),  # [introduce]
+                'slot3': idxs_to_tokens(doc1, [3]),  # [methods]
             },
             {
                 'slot1': idxs_to_tokens(doc1, [13, 15]),  # [demonstrating, application]
@@ -41,7 +48,7 @@ build_pattern_and_find_matches_test_cases = [
             {
                 'arg1': idxs_to_tokens(doc2, [5]),  # [hypothesis]
                 'pred': idxs_to_tokens(doc2, [6]),  # [was]
-                'arg2': idxs_to_tokens(doc2, [7])  # [introduced]
+                'arg2': idxs_to_tokens(doc2, [7]),  # [introduced]
             },
         ],
     },
@@ -108,6 +115,32 @@ def test_validate_features():
     for match_example in match_examples:
         with pytest.raises(FeaturesNotInFeatureDictError):
             role_pattern_builder.build(match_example, features=features)
+
+
+def test_visualise_pattern():
+    for i, doc in enumerate(docs):
+        png = visualise_spacy_tree.plot(doc)
+        filepath = 'examples/sentence_vis/sentence_{}.png'.format(i)
+        with open(filepath, 'wb') as f:
+            f.write(png)
+    feature_dict = {'DEP': 'dep_', 'TAG': 'tag_', 'LOWER': 'lower_'}
+    test_cases = build_pattern_and_find_matches_test_cases
+    for test_i, test_case in enumerate(test_cases):
+        match_examples = test_case['match_examples']
+        role_pattern_builder = RolePatternBuilder(feature_dict)
+        for features_i, features in enumerate(feature_combs):
+            for match_example in match_examples:
+                role_pattern = role_pattern_builder.build(match_example, features=features)
+                role_pattern.token_labels
+                filepath = 'examples/spacy_dep_patterns/pattern_{}_{}.json'.format(test_i, features_i)
+                with open(filepath, 'w') as f:
+                    json.dump(role_pattern.spacy_dep_pattern, f, indent=2)
+                matches = role_pattern.match(doc)
+                pydot = role_pattern.to_pydot()
+                png = pydot.create_png()
+                filename = 'examples/pattern_vis/pattern_{0}_{1}.png'.format(test_i, features_i)
+                with open(filename, 'wb') as f:
+                    f.write(png)
 
 
 # def test_role_pattern_set():
