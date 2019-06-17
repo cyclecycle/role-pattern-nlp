@@ -50,6 +50,18 @@ print(matches)
 
 See examples/ for demonstration as to how to refine a pattern using negative examples.
 
+## API
+
+### RolePattern
+
+#### RolePattern.spacy_dep_pattern
+
+The dependency pattern in the form used to create the SpaCy DependencyMatcher object.
+
+#### RolePattern.token_labels
+
+The list of labels that corresponds to the tokens matched by the pattern.
+
 ## Built with
 
 - [SpaCy](https://spacy.io) - DependencyMatcher

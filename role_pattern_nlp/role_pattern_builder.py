@@ -42,9 +42,9 @@ class RolePatternBuilder():
 
 
 def build_role_pattern(match_example, feature_dict=DEFAULT_BUILD_PATTERN_TOKEN_FEATURE_DICT):
-    tokens = [sublist for _list in match_example.values() for sublist in _list]
-    doc = tokens[0].doc
+    doc = util.doc_from_match(match_example)
     util.annotate_token_depth(doc)
+    tokens = [sublist for _list in match_example.values() for sublist in _list]
     tokens = [doc[token.i] for token in tokens]  # Ensure that the tokens have the newly added depth attribute
     nx_graph = util.doc_to_nx_graph(doc)
     match_tokens = util.smallest_connected_subgraph(tokens, nx_graph, doc)
@@ -81,14 +81,14 @@ def yield_role_pattern_permutations(role_pattern, feature_sets):
 
 
 def yield_refined_pattern_variants(role_pattern, pos_example, neg_examples, feature_sets):
-    pos_example_doc = util.match_example_doc(pos_example)
+    pos_example_doc = util.doc_from_match(pos_example)
     role_pattern_variants = yield_role_pattern_permutations(role_pattern, feature_sets)
     for role_pattern_variant in role_pattern_variants:
         matches = role_pattern_variant.match(pos_example_doc)
         pattern_matches_pos_example = pos_example in matches
         neg_example_matches = []
         for neg_example in neg_examples:
-            doc = util.match_example_doc(neg_example)
+            doc = util.doc_from_match(neg_example)
             matches = role_pattern_variant.match(doc)
             if neg_example in matches:
                 neg_example_matches.append(neg_example)

@@ -127,8 +127,8 @@ def flatten_list(list_):
     return list(itertools.chain(*list_))
 
 
-def match_example_doc(match_example):
-    token_lists = list(match_example.values())
+def doc_from_match(match):
+    token_lists = match.values()
     tokens = flatten_list(token_lists)
     doc = tokens[0].doc
     return doc
