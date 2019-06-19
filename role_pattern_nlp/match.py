@@ -1,4 +1,12 @@
+import collections
 from spacy.matcher import DependencyTreeMatcher
+
+
+class RolePatternMatch(collections.UserDict):
+
+    def __init__(self, *args, **kwargs):
+        self.match_tokens = []
+        super().__init__(*args, **kwargs)
 
 
 def build_matcher(vocab, pattern_dict):
@@ -20,6 +28,8 @@ def find_matches(doc, pattern, pattern_name='pattern'):
         tokens = [doc[idx] for idx in token_idxs]
         labels = pattern['token_labels']
         match_dict = label_tokens(tokens, labels)
+        match_dict = RolePatternMatch(match_dict)
+        match_dict.match_tokens = tokens
         match_list.append(match_dict)
     return match_list
 

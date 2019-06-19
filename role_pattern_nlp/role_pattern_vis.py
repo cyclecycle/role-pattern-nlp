@@ -3,15 +3,17 @@ Show the pattern as a tree plot with node attributes and role labels
 '''
 
 import pydot
+from spacy.tokens import Token
+import visualise_spacy_tree
 import visualise_spacy_pattern
 from role_pattern_nlp import util
 
 
 ROLE_COLOURS = [
     'deeppink1',
-    'cyan',
+    'purple',
     'dodgerblue',
-    'aquamarine',
+    # 'cyan',
 ]
 
 NULL_COLOUR = 'grey'
@@ -58,21 +60,6 @@ def assign_role_colours(graph, token_labels, label2colour):
     return graph
 
 
-# def add_legend(graph, label2colour):
-#     legend = pydot.Subgraph(graph_name='cluster_legend', **DEFAULT_STYLE_ATTRS, **LEGEND_ATTRS)
-#     legend.set_label('Legend')
-#     for label, colour in label2colour.items():
-#         label_node = pydot.Node(name=label, **LEGEND_NODE_ATTRS)
-#         colour_node = pydot.Node(name=colour, fontcolor='white', fontsize=0, **LEGEND_NODE_ATTRS)
-#         # colour_node.set_color(colour)
-#         edge = pydot.Edge(label_node, colour_node, style='invis', contraint='false')
-#         legend.add_node(label_node)
-#         legend.add_node(colour_node)
-#         legend.add_edge(edge)
-#     graph.add_subgraph(legend)
-#     return graph
-
-
 def create_legend(label2colour):
     legend = pydot.Dot(graph_type='graph', **DEFAULT_STYLE_ATTRS)
     legend_cluster = pydot.Subgraph(graph_name='cluster_legend', **DEFAULT_STYLE_ATTRS, **LEGEND_ATTRS)
@@ -82,6 +69,8 @@ def create_legend(label2colour):
         row = '<td>{0}</td><td bgcolor="{1}" width="30"></td>'.format(label, colour)
         row = '<tr>{}</tr>'.format(row)
         rows.append(row)
+    row = '<tr><td>No label</td><td bgcolor="{}" width="30"></td></tr>'.format(NULL_COLOUR)
+    rows.append(row)
     table = '<<table border="0" cellborder="1" cellspacing="0" cellpadding="4">{}</table>>'.format('\n'.join(rows))
     table = pydot.Node(name='legend_table', label=table, shape='none')
     legend_cluster.add_node(table)
@@ -117,14 +106,44 @@ def add_role_label_clusters(graph, labels):
     return new_graph
 
 
-def to_pydot(pattern, with_legend=False):
+def pattern_to_pydot(pattern, legend=False):
     spacy_dep_pattern = pattern.spacy_dep_pattern
     labels_depth_order = pattern.token_labels_depth_order
     labels_original_order = pattern.token_labels
     graph = visualise_spacy_pattern.to_pydot(spacy_dep_pattern)
-    label2colour = get_label_colour_dict(labels_original_order)
+    if pattern.label2colour:
+        label2colour = pattern.label2colour
+    else:
+        label2colour = get_label_colour_dict(labels_original_order)
+        pattern.label2colour = label2colour
     graph = assign_role_colours(graph, labels_depth_order, label2colour)
-    if with_legend:
+    if legend:
         legend = create_legend(label2colour)
         return graph, legend
+    return graph
+
+
+def match_to_pydot(pattern, match, legend=False):
+    if pattern.label2colour:
+        label2colour = pattern.label2colour
+    else:
+        labels_original_order = pattern.token_labels
+        label2colour = get_label_colour_dict(labels_original_order)
+        pattern.label2colour = label2colour
+    doc = util.doc_from_match(match)
+    try:
+        Token.set_extension('plot', default={})
+    except:
+        pass
+    for token in doc:
+        colour = None
+        for match_token in match.match_tokens:
+            if match_token == token:
+                colour = NULL_COLOUR
+            for label, labelled_tokens in match.items():
+                if token in labelled_tokens:
+                    colour = label2colour[label]
+        if colour:
+            token._.plot = {'color': colour}
+    graph = visualise_spacy_tree.to_pydot(doc)
     return graph

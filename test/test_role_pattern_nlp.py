@@ -22,7 +22,7 @@ def idxs_to_tokens(doc, idxs):
     return [doc[idx] for idx in idxs]
 
 
-build_pattern_and_find_matches_test_cases = [
+test_cases = [
     {
         'doc': doc1,
         'match_examples': [
@@ -64,7 +64,7 @@ feature_combs = [
 
 def test_build_pattern_and_find_matches():
     feature_dict = {'DEP': 'dep_', 'TAG': 'tag_', 'LOWER': 'lower_'}
-    for test_case in build_pattern_and_find_matches_test_cases:
+    for test_case in test_cases:
         doc = test_case['doc']
         match_examples = test_case['match_examples']
         role_pattern_builder = RolePatternBuilder(feature_dict)
@@ -119,32 +119,56 @@ def test_validate_features():
 
 def test_visualise_pattern():
     for i, doc in enumerate(docs):
-        png = visualise_spacy_tree.plot(doc)
+        png = visualise_spacy_tree.create_png(doc)
         filepath = 'examples/sentence_vis/sentence_{}.png'.format(i)
         with open(filepath, 'wb') as f:
             f.write(png)
     feature_dict = {'DEP': 'dep_', 'TAG': 'tag_', 'LOWER': 'lower_'}
-    test_cases = build_pattern_and_find_matches_test_cases
     for test_i, test_case in enumerate(test_cases):
         match_examples = test_case['match_examples']
         role_pattern_builder = RolePatternBuilder(feature_dict)
         for features_i, features in enumerate(feature_combs):
             for match_example in match_examples:
                 role_pattern = role_pattern_builder.build(match_example, features=features)
-                role_pattern.token_labels
                 filepath = 'examples/spacy_dep_patterns/pattern_{}_{}.json'.format(test_i, features_i)
                 with open(filepath, 'w') as f:
                     json.dump(role_pattern.spacy_dep_pattern, f, indent=2)
-                matches = role_pattern.match(doc)
-                pydot, legend = role_pattern.to_pydot(with_legend=True)
+                pydot, legend = role_pattern.to_pydot(legend=True)
                 png = pydot.create_png()
                 filename = 'examples/pattern_vis/pattern_{0}_{1}.png'.format(test_i, features_i)
                 with open(filename, 'wb') as f:
                     f.write(png)
-                png = legend.create_png()
-                filename = 'examples/pattern_vis/pattern_{0}_{1}_legend.png'.format(test_i, features_i)
-                with open(filename, 'wb') as f:
-                    f.write(png)
+
+
+def test_visualise_pattern_legend():
+    feature_dict = {'DEP': 'dep_', 'TAG': 'tag_', 'LOWER': 'lower_'}
+    role_pattern_builder = RolePatternBuilder(feature_dict)
+    test_case = test_cases[1]
+    match_example = test_case['match_examples'][0]
+    role_pattern = role_pattern_builder.build(match_example)
+    pydot, legend = role_pattern.to_pydot(legend=True)
+    png = legend.create_png()
+    filename = 'examples/pattern_vis/pattern_1_0_legend.png'
+    with open(filename, 'wb') as f:
+        f.write(png)
+
+
+def test_visualise_pattern_match():
+    feature_dict = {'DEP': 'dep_', 'TAG': 'tag_', 'LOWER': 'lower_'}
+    for test_i, test_case in enumerate(test_cases):
+        doc = test_case['doc']
+        match_examples = test_case['match_examples']
+        role_pattern_builder = RolePatternBuilder(feature_dict)
+        for features_i, features in enumerate(feature_combs):
+            for match_example in match_examples:
+                role_pattern = role_pattern_builder.build(match_example, features=features)
+                matches = role_pattern.match(doc)
+                for match in matches:
+                    pydot = role_pattern.match_to_pydot(match)
+                    png = pydot.create_png()
+                    filename = 'examples/match_vis/match{0}_{1}.png'.format(test_i, features_i)
+                    with open(filename, 'wb') as f:
+                        f.write(png)
 
 
 # def test_role_pattern_set():
