@@ -136,9 +136,13 @@ def test_visualise_pattern():
                 with open(filepath, 'w') as f:
                     json.dump(role_pattern.spacy_dep_pattern, f, indent=2)
                 matches = role_pattern.match(doc)
-                pydot = role_pattern.to_pydot()
+                pydot, legend = role_pattern.to_pydot(with_legend=True)
                 png = pydot.create_png()
                 filename = 'examples/pattern_vis/pattern_{0}_{1}.png'.format(test_i, features_i)
+                with open(filename, 'wb') as f:
+                    f.write(png)
+                png = legend.create_png()
+                filename = 'examples/pattern_vis/pattern_{0}_{1}_legend.png'.format(test_i, features_i)
                 with open(filename, 'wb') as f:
                     f.write(png)
 

@@ -17,5 +17,5 @@ class RolePattern():
         matches = match.find_matches(doc, pattern, 'pattern')
         return matches
 
-    def to_pydot(self):
-        return role_pattern_vis.to_pydot(self)
+    def to_pydot(self, **kwargs):
+        return role_pattern_vis.to_pydot(self, **kwargs)

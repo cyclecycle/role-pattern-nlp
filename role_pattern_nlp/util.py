@@ -88,6 +88,14 @@ def flatten_list(list_):
     return list(itertools.chain(*list_))
 
 
+def unique_list(list_):
+    newlist = []
+    for item in list_:
+        if item not in newlist:
+            newlist.append(item)
+    return newlist
+
+
 def doc_from_match(match):
     token_lists = match.values()
     tokens = flatten_list(token_lists)
