@@ -12,14 +12,15 @@ class RolePatternBuilder():
     def __init__(self, feature_dict):
         self.feature_dict = feature_dict
 
-    def build(self, match_example, features=[]):
+    def build(self, match_example, features=[], **kwargs):
         if not features:
             features = self.feature_dict.keys()
         self.validate_features(features)
         feature_dict = {k: v for k, v in self.feature_dict.items() if k in features}
         role_pattern = build_role_pattern(
             match_example,
-            feature_dict=feature_dict
+            feature_dict=feature_dict,
+            **kwargs,
         )
         role_pattern.builder = self
         return role_pattern
@@ -43,7 +44,7 @@ class RolePatternBuilder():
             raise FeaturesNotInFeatureDictError('RolePatternBuilder received a list of features which includes features that are not present in the feature_dict. Features not present: {}'.format(', '.join(features_not_in_feature_dict)))
 
 
-def build_role_pattern(match_example, feature_dict=DEFAULT_BUILD_PATTERN_TOKEN_FEATURE_DICT):
+def build_role_pattern(match_example, feature_dict=DEFAULT_BUILD_PATTERN_TOKEN_FEATURE_DICT, validate=True):
     doc = util.doc_from_match(match_example)
     util.annotate_token_depth(doc)
     tokens = util.flatten_list(match_example.values())
@@ -60,13 +61,14 @@ def build_role_pattern(match_example, feature_dict=DEFAULT_BUILD_PATTERN_TOKEN_F
     match_tokens_depth_order = spacy_pattern_builder.util.sort_by_depth(match_tokens)  # Should be same order as the dependency pattern
     token_labels_depth_order = build_pattern_label_list(match_tokens_depth_order, match_example)
     role_pattern.token_labels_depth_order = token_labels_depth_order
-    pattern_does_match_example = validate.pattern_matches_example(role_pattern, match_example)
-    if not pattern_does_match_example:
-        raise RolePatternDoesNotMatchExample('Unable to match example: \n{0}\nFrom doc: {1}\nConstructed dependency pattern: \n{2}'.format(
-            pformat(match_example),
-            doc,
-            pformat(role_pattern.spacy_dep_pattern),
-        ))
+    if validate:
+        pattern_does_match_example = validate.pattern_matches_example(role_pattern, match_example)
+        if not pattern_does_match_example:
+            raise RolePatternDoesNotMatchExample('Unable to match example: \n{0}\nFrom doc: {1}\nConstructed dependency pattern: \n{2}'.format(
+                pformat(match_example),
+                doc,
+                pformat(role_pattern.spacy_dep_pattern),
+            ))
     return role_pattern
 
 
