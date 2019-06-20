@@ -29,4 +29,4 @@ tqdm==4.32.1
 urllib3==1.25.3
 wasabi==0.2.2
 wcwidth==0.1.7
-git+https://github.com/cyclecycle/visualise-spacy-pattern.git
+visualise-spacy-pattern
