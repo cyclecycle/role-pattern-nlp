@@ -164,11 +164,15 @@ def test_visualise_pattern_match():
                 role_pattern = role_pattern_builder.build(match_example, features=features)
                 matches = role_pattern.match(doc)
                 for match in matches:
-                    pydot = role_pattern.match_to_pydot(match)
-                    png = pydot.create_png()
+                    graph, legend = match.to_pydot(legend=True)
+                    png = graph.create_png()
                     filename = 'examples/match_vis/match{0}_{1}.png'.format(test_i, features_i)
                     with open(filename, 'wb') as f:
                         f.write(png)
+    png = legend.create_png()
+    filename = 'examples/match_vis/match{0}_{1}_legend.png'.format(test_i, features_i)
+    with open(filename, 'wb') as f:
+        f.write(png)
 
 
 # def test_role_pattern_set():

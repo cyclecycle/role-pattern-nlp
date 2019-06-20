@@ -30,3 +30,4 @@ urllib3==1.25.3
 wasabi==0.2.2
 wcwidth==0.1.7
 visualise-spacy-pattern
+visualise-spacy-tree

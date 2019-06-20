@@ -1,5 +1,6 @@
 import collections
 from spacy.matcher import DependencyTreeMatcher
+from role_pattern_nlp import role_pattern_vis
 
 
 class RolePatternMatch(collections.UserDict):
@@ -7,6 +8,9 @@ class RolePatternMatch(collections.UserDict):
     def __init__(self, *args, **kwargs):
         self.match_tokens = []
         super().__init__(*args, **kwargs)
+
+    def to_pydot(self, **kwargs):
+        return role_pattern_vis.match_to_pydot(self, **kwargs)
 
 
 def build_matcher(vocab, pattern_dict):

@@ -3,6 +3,7 @@ from role_pattern_nlp.role_pattern import RolePattern
 from role_pattern_nlp import constants
 from role_pattern_nlp.role_pattern_set import RolePatternSet
 from role_pattern_nlp import match
+from role_pattern_nlp.match import RolePatternMatch
 from role_pattern_nlp import validate
 from role_pattern_nlp import role_pattern_vis
 from role_pattern_nlp.exceptions import *

@@ -71,9 +71,15 @@ def create_legend(label2colour):
         rows.append(row)
     row = '<tr><td>No label</td><td bgcolor="{}" width="30"></td></tr>'.format(NULL_COLOUR)
     rows.append(row)
-    table = '<<table border="0" cellborder="1" cellspacing="0" cellpadding="4">{}</table>>'.format('\n'.join(rows))
-    table = pydot.Node(name='legend_table', label=table, shape='none')
-    legend_cluster.add_node(table)
+    table = '<table border="0" cellborder="1" cellspacing="0" cellpadding="4">{}</table>'.format('\n'.join(rows))
+    table = '<font face="{0}" size="{1}">{2}</font>'.format(
+        DEFAULT_STYLE_ATTRS['fontname'],
+        DEFAULT_STYLE_ATTRS['fontsize'],
+        table,
+    )
+    html = '<{}>'.format(table)
+    html = pydot.Node(name='legend_table', label=html, shape='none')
+    legend_cluster.add_node(html)
     legend.add_subgraph(legend_cluster)
     return legend
 
@@ -123,13 +129,10 @@ def pattern_to_pydot(pattern, legend=False):
     return graph
 
 
-def match_to_pydot(pattern, match, legend=False):
-    if pattern.label2colour:
-        label2colour = pattern.label2colour
-    else:
-        labels_original_order = pattern.token_labels
-        label2colour = get_label_colour_dict(labels_original_order)
-        pattern.label2colour = label2colour
+def match_to_pydot(match, label2colour={}, legend=False):
+    labels = match.keys()
+    if not label2colour:
+        label2colour = get_label_colour_dict(labels)
     doc = util.doc_from_match(match)
     try:
         Token.set_extension('plot', default={})
@@ -146,4 +149,7 @@ def match_to_pydot(pattern, match, legend=False):
         if colour:
             token._.plot = {'color': colour}
     graph = visualise_spacy_tree.to_pydot(doc)
+    if legend:
+        legend = create_legend(label2colour)
+        return graph, legend
     return graph
