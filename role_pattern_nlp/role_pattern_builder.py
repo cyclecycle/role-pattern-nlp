@@ -68,7 +68,9 @@ def build_role_pattern(match_example, feature_dict=DEFAULT_BUILD_PATTERN_TOKEN_F
             message = [
                 'Unable to match example: \n{}'.format(pformat(match_example)),
                 'From doc: {}'.format(doc),
-                'Constructed dependency pattern: \n{}'.format(pformat(spacy_dep_pattern)),
+                'Constructed role pattern: \n',
+                'spacy_dep_pattern: \n{}'.format(pformat(spacy_dep_pattern)),
+                'token_labels: \n{}'.format(pformat(role_pattern.token_labels_depth_order)),
             ]
             if matches:
                 message.append('Matches found:')
@@ -79,7 +81,7 @@ def build_role_pattern(match_example, feature_dict=DEFAULT_BUILD_PATTERN_TOKEN_F
                     ]
             else:
                 message.append('Matches found: None')
-            message = '\n'.join(message)
+            message = '\n{}'.format('\n'.join(message))
             raise RolePatternDoesNotMatchExample(message)
     return role_pattern
 
@@ -89,7 +91,7 @@ def build_pattern_label_list(match_tokens, match_example):
     for w in match_tokens:
         label = None
         for label_, tokens in match_example.items():
-            if w in tokens:
+            if w.i in [t.i for t in tokens]:
                 label = label_
         match_token_labels.append(label)
     return match_token_labels

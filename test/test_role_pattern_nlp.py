@@ -50,6 +50,11 @@ test_cases = [
                 'pred': idxs_to_tokens(doc2, [6]),  # [was]
                 'arg2': idxs_to_tokens(doc2, [7]),  # [introduced]
             },
+            {
+                'slot1': idxs_to_tokens(doc2, [5]),  # [hypothesis]
+                'slot2': idxs_to_tokens(doc2, [6]),  # [was]
+                'slot3': idxs_to_tokens(doc2, [7]),  # [introduced]
+            },
         ],
     },
 ]
@@ -71,7 +76,10 @@ def test_build_pattern_and_find_matches():
         for features in feature_combs:
             for match_example in match_examples:
                 role_pattern = role_pattern_builder.build(match_example, features=features)
+                print(match_example)
+                print(role_pattern.token_labels)
                 matches = role_pattern.match(doc)
+                print(matches)
                 assert match_example in matches
 
 
@@ -166,11 +174,11 @@ def test_visualise_pattern_match():
                 for match in matches:
                     graph, legend = match.to_pydot(legend=True)
                     png = graph.create_png()
-                    filename = 'examples/match_vis/match{0}_{1}.png'.format(test_i, features_i)
+                    filename = 'examples/match_vis/match_{0}_{1}.png'.format(test_i, features_i)
                     with open(filename, 'wb') as f:
                         f.write(png)
     png = legend.create_png()
-    filename = 'examples/match_vis/match{0}_{1}_legend.png'.format(test_i, features_i)
+    filename = 'examples/match_vis/match_{0}_{1}_legend.png'.format(test_i, features_i)
     with open(filename, 'wb') as f:
         f.write(png)
 
