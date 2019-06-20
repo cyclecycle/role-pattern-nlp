@@ -62,7 +62,11 @@ def build_role_pattern(match_example, feature_dict=DEFAULT_BUILD_PATTERN_TOKEN_F
     role_pattern.token_labels_depth_order = token_labels_depth_order
     pattern_does_match_example = validate.pattern_matches_example(role_pattern, match_example)
     if not pattern_does_match_example:
-        raise RolePatternDoesNotMatchExample('Unable to match example: \n{0}\nConstructed dependency pattern: {1}'.format(pformat(match_example), pformat(role_pattern.spacy_dep_pattern)))
+        raise RolePatternDoesNotMatchExample('Unable to match example: \n{0}\nFrom doc: {1}\nConstructed dependency pattern: \n{2}'.format(
+            pformat(match_example),
+            doc,
+            pformat(role_pattern.spacy_dep_pattern),
+        ))
     return role_pattern
 
 
