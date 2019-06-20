@@ -1,3 +1,4 @@
+from pprint import pformat
 import spacy_pattern_builder
 from role_pattern_nlp.role_pattern import RolePattern
 from role_pattern_nlp import validate
@@ -56,12 +57,12 @@ def build_role_pattern(match_example, feature_dict=DEFAULT_BUILD_PATTERN_TOKEN_F
     )
     token_labels = build_pattern_label_list(match_tokens, match_example)
     role_pattern = RolePattern(spacy_dep_pattern, token_labels)
-    match_tokens_depth_order = spacy_pattern_builder.util.sort_by_depth(match_tokens)  # Now, match_tokens should be in the same order as the dependency pattern that will be built
+    match_tokens_depth_order = spacy_pattern_builder.util.sort_by_depth(match_tokens)  # Should be same order as the dependency pattern
     token_labels_depth_order = build_pattern_label_list(match_tokens_depth_order, match_example)
     role_pattern.token_labels_depth_order = token_labels_depth_order
     pattern_does_match_example = validate.pattern_matches_example(role_pattern, match_example)
     if not pattern_does_match_example:
-        raise RolePatternDoesNotMatchExample()
+        raise RolePatternDoesNotMatchExample('Unable to match example: \n{0}\nConstructed dependency pattern: {1}'.format(pformat(match_example), pformat(role_pattern.spacy_dep_pattern)))
     return role_pattern
 
 
