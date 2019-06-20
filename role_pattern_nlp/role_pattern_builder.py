@@ -91,7 +91,8 @@ def build_pattern_label_list(match_tokens, match_example):
     for w in match_tokens:
         label = None
         for label_, tokens in match_example.items():
-            if w.i in [t.i for t in tokens]:
+            token_idxs = [t.i for t in tokens]
+            if w.i in token_idxs:  # Use idxs to prevent false inequality caused by state changes
                 label = label_
         match_token_labels.append(label)
     return match_token_labels

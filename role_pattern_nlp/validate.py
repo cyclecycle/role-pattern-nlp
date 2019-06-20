@@ -17,7 +17,12 @@ def features_are_in_role_pattern(features, role_pattern):
 def pattern_matches_example(role_pattern, match_example):
     doc = util.doc_from_match(match_example)
     matches = role_pattern.match(doc)
-    # matches = [dict(match) for match in matches]
-    if match_example in matches:
+    match_example = {slot: [t.i for t in tokens] for slot, tokens in match_example.items()}  # Compare using token.i to protect against false inequality caused by state changes
+    match_found = False
+    for match in matches:
+        match = {slot: [t.i for t in tokens] for slot, tokens in match.items()}
+        if match == match_example:
+            match_found = True
+    if match_found:
         return True, matches
     return False, matches

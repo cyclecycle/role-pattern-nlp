@@ -50,11 +50,6 @@ test_cases = [
                 'pred': idxs_to_tokens(doc2, [6]),  # [was]
                 'arg2': idxs_to_tokens(doc2, [7]),  # [introduced]
             },
-            {
-                'slot1': idxs_to_tokens(doc2, [5]),  # [hypothesis]
-                'slot2': idxs_to_tokens(doc2, [6]),  # [was]
-                'slot3': idxs_to_tokens(doc2, [7]),  # [introduced]
-            },
         ],
     },
 ]
@@ -75,11 +70,8 @@ def test_build_pattern_and_find_matches():
         role_pattern_builder = RolePatternBuilder(feature_dict)
         for features in feature_combs:
             for match_example in match_examples:
-                role_pattern = role_pattern_builder.build(match_example, features=features)
-                print(match_example)
-                print(role_pattern.token_labels)
+                role_pattern = role_pattern_builder.build(match_example, features=features, validate_pattern=True)
                 matches = role_pattern.match(doc)
-                print(matches)
                 assert match_example in matches
 
 
