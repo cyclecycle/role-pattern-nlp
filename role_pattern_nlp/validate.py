@@ -19,5 +19,5 @@ def pattern_matches_example(role_pattern, match_example):
     matches = role_pattern.match(doc)
     matches = [dict(match) for match in matches]
     if match_example in matches:
-        return True
-    return False
+        return True, matches
+    return False, matches
