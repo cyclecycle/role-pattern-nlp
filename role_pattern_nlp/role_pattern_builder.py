@@ -64,12 +64,22 @@ def build_role_pattern(match_example, feature_dict=DEFAULT_BUILD_PATTERN_TOKEN_F
     if validate_pattern:
         pattern_does_match_example, matches = validate.pattern_matches_example(role_pattern, match_example)
         if not pattern_does_match_example:
-            message = 'Unable to match example: \n{0}\nFrom doc: {1}\nConstructed dependency pattern: \n{2}\nMatches found: \n{3}\n'.format(
-                pformat(match_example),
-                doc,
-                pformat(role_pattern.spacy_dep_pattern),
-                pformat(matches),
-            )
+            spacy_dep_pattern = role_pattern.spacy_dep_pattern
+            message = [
+                'Unable to match example: \n{}'.format(pformat(match_example)),
+                'From doc: {}'.format(doc),
+                'Constructed dependency pattern: \n{}'.format(pformat(spacy_dep_pattern)),
+            ]
+            if matches:
+                message.append('Matches found:')
+                for match in matches:
+                    message += [
+                        'Match tokens: \n{}'.format(pformat(match.match_tokens)),
+                        'Slots: \n{}'.format(pformat(match)),
+                    ]
+            else:
+                message.append('Matches found: None')
+            message = '\n'.join(message)
             raise RolePatternDoesNotMatchExample(message)
     return role_pattern
 
