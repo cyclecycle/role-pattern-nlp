@@ -44,7 +44,7 @@ class RolePatternBuilder():
             raise FeaturesNotInFeatureDictError('RolePatternBuilder received a list of features which includes features that are not present in the feature_dict. Features not present: {}'.format(', '.join(features_not_in_feature_dict)))
 
 
-def build_role_pattern(match_example, feature_dict=DEFAULT_BUILD_PATTERN_TOKEN_FEATURE_DICT, validate=True):
+def build_role_pattern(match_example, feature_dict=DEFAULT_BUILD_PATTERN_TOKEN_FEATURE_DICT, validate_pattern=True):
     doc = util.doc_from_match(match_example)
     util.annotate_token_depth(doc)
     tokens = util.flatten_list(match_example.values())
@@ -61,7 +61,7 @@ def build_role_pattern(match_example, feature_dict=DEFAULT_BUILD_PATTERN_TOKEN_F
     match_tokens_depth_order = spacy_pattern_builder.util.sort_by_depth(match_tokens)  # Should be same order as the dependency pattern
     token_labels_depth_order = build_pattern_label_list(match_tokens_depth_order, match_example)
     role_pattern.token_labels_depth_order = token_labels_depth_order
-    if validate:
+    if validate_pattern:
         pattern_does_match_example = validate.pattern_matches_example(role_pattern, match_example)
         if not pattern_does_match_example:
             raise RolePatternDoesNotMatchExample('Unable to match example: \n{0}\nFrom doc: {1}\nConstructed dependency pattern: \n{2}'.format(
