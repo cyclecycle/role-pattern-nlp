@@ -36,7 +36,7 @@ DEFAULT_NODE_ATTRS = {
     'shape': 'box',
     'style': 'rounded',
     'penwidth': 2,
-    'margin': 0.2,
+    'margin': 0.25,
 }
 
 LEGEND_ATTRS = {
@@ -66,7 +66,6 @@ def assign_role_colours(graph, token_labels, label2colour):
 def create_legend(label2colour):
     legend = pydot.Dot(graph_type='graph', **DEFAULT_STYLE_ATTRS)
     legend_cluster = pydot.Subgraph(graph_name='cluster_legend', **DEFAULT_STYLE_ATTRS, **LEGEND_ATTRS)
-    # legend_cluster.set_label('Role labels')
     rows = []
     for label, colour in label2colour.items():
         row = '<td>{0}</td><td bgcolor="{1}" width="30"></td>'.format(label, colour)
@@ -74,7 +73,7 @@ def create_legend(label2colour):
         rows.append(row)
     row = '<tr><td>Null</td><td bgcolor="{}" width="30"></td></tr>'.format(NULL_COLOUR)
     rows.append(row)
-    row = '<tr><td width="80">No label</td><td bgcolor="{}" width="30"></td></tr>'.format(DEFAULT_COLOUR)
+    row = '<tr><td width="100">No label</td><td bgcolor="{}" width="30"></td></tr>'.format(DEFAULT_COLOUR)
     rows.append(row)
     table = '<table border="0" cellborder="1" cellspacing="0" cellpadding="4">{}</table>'.format('\n'.join(rows))
     table = '<font face="{0}" size="{1}">{2}</font>'.format(
@@ -149,10 +148,13 @@ def match_to_pydot(match, label2colour={}, legend=False):
             if match_token.i == token.i:
                 colour = NULL_COLOUR
             for label, labelled_tokens in match.items():
-                if token in labelled_tokens:
+                if token.i in [t.i for t in labelled_tokens]:
                     colour = label2colour[label]
         token._.plot['color'] = colour
     graph = visualise_spacy_tree.to_pydot(doc)
+    for edge in graph.get_edges():
+        for k, v in DEFAULT_STYLE_ATTRS.items():
+            edge.set(k, v)
     if legend:
         legend = create_legend(label2colour)
         return graph, legend
