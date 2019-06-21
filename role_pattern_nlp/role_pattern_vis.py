@@ -13,10 +13,12 @@ ROLE_COLOURS = [
     'deeppink1',
     'purple',
     'dodgerblue',
-    # 'cyan',
+    'cyan',
 ]
 
 NULL_COLOUR = 'grey'
+
+DEFAULT_COLOUR = 'aquamarine'
 
 DEFAULT_STYLE_ATTRS = {
     'fontname': 'palatino',
@@ -30,10 +32,11 @@ DEFAULT_SUBGRAPH_ATTRS = {
 }
 
 DEFAULT_NODE_ATTRS = {
-    'color': 'cyan',
+    'color': DEFAULT_COLOUR,
     'shape': 'box',
     'style': 'rounded',
     'penwidth': 2,
+    'margin': 0.2,
 }
 
 LEGEND_ATTRS = {
@@ -63,18 +66,20 @@ def assign_role_colours(graph, token_labels, label2colour):
 def create_legend(label2colour):
     legend = pydot.Dot(graph_type='graph', **DEFAULT_STYLE_ATTRS)
     legend_cluster = pydot.Subgraph(graph_name='cluster_legend', **DEFAULT_STYLE_ATTRS, **LEGEND_ATTRS)
-    legend_cluster.set_label('Role labels')
+    # legend_cluster.set_label('Role labels')
     rows = []
     for label, colour in label2colour.items():
         row = '<td>{0}</td><td bgcolor="{1}" width="30"></td>'.format(label, colour)
         row = '<tr>{}</tr>'.format(row)
         rows.append(row)
-    row = '<tr><td>No label</td><td bgcolor="{}" width="30"></td></tr>'.format(NULL_COLOUR)
+    row = '<tr><td>Null</td><td bgcolor="{}" width="30"></td></tr>'.format(NULL_COLOUR)
+    rows.append(row)
+    row = '<tr><td width="80">No label</td><td bgcolor="{}" width="30"></td></tr>'.format(DEFAULT_COLOUR)
     rows.append(row)
     table = '<table border="0" cellborder="1" cellspacing="0" cellpadding="4">{}</table>'.format('\n'.join(rows))
     table = '<font face="{0}" size="{1}">{2}</font>'.format(
         DEFAULT_STYLE_ATTRS['fontname'],
-        DEFAULT_STYLE_ATTRS['fontsize'],
+        DEFAULT_STYLE_ATTRS['fontsize'] - 2,
         table,
     )
     html = '<{}>'.format(table)
@@ -84,7 +89,7 @@ def create_legend(label2colour):
     return legend
 
 
-def get_nodes_with_label(nodes, labels, with_label):
+def nodes_with_label(nodes, labels, with_label):
     nodes_with_label = []
     for node, label in zip(nodes, labels):
         if label == with_label:
@@ -94,17 +99,17 @@ def get_nodes_with_label(nodes, labels, with_label):
 
 def add_role_label_clusters(graph, labels):
     new_graph = pydot.Dot(graph_type='graph', **DEFAULT_STYLE_ATTRS)
-    nodes = graph.get_nodes()
+    all_nodes = graph.get_nodes()
     for label in util.unique_list(labels):
-        nodes_with_label = get_nodes_with_label(nodes, labels, label)
+        nodes = nodes_with_label(all_nodes, labels, label)
         if not label:
-            for node in nodes_with_label:
+            for node in nodes:
                 new_graph.add_node(node)
         else:
             subgraph_name = 'cluster_' + label
             subgraph = pydot.Subgraph(graph_name=subgraph_name, **DEFAULT_SUBGRAPH_ATTRS)
             subgraph.set_label(label)
-            for node in nodes_with_label:
+            for node in nodes:
                 subgraph.add_node(node)
             new_graph.add_subgraph(subgraph)
     for edge in graph.get_edges():
@@ -135,19 +140,18 @@ def match_to_pydot(match, label2colour={}, legend=False):
         label2colour = get_label_colour_dict(labels)
     doc = util.doc_from_match(match)
     try:
-        Token.set_extension('plot', default={})
+        Token.set_extension('plot', default=DEFAULT_NODE_ATTRS)
     except:
         pass
     for token in doc:
-        colour = None
+        colour = DEFAULT_COLOUR
         for match_token in match.match_tokens:
-            if match_token == token:
+            if match_token.i == token.i:
                 colour = NULL_COLOUR
             for label, labelled_tokens in match.items():
                 if token in labelled_tokens:
                     colour = label2colour[label]
-        if colour:
-            token._.plot = {'color': colour}
+        token._.plot['color'] = colour
     graph = visualise_spacy_tree.to_pydot(doc)
     if legend:
         legend = create_legend(label2colour)
