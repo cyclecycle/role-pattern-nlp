@@ -121,6 +121,9 @@ def pattern_to_pydot(pattern, legend=False):
     labels_depth_order = pattern.token_labels_depth_order
     labels_original_order = pattern.token_labels
     graph = visualise_spacy_pattern.to_pydot(spacy_dep_pattern)
+    for node in graph.get_nodes():
+        for k, v in DEFAULT_NODE_ATTRS.items():
+            node.set(k, v)
     if pattern.label2colour:
         label2colour = pattern.label2colour
     else:
