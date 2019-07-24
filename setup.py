@@ -8,7 +8,7 @@ with open("requirements.txt") as fh:
 
 setuptools.setup(
     name="role-pattern-nlp",
-    version="0.0.8",
+    version="0.0.9",
     author="Nicholas Morley",
     author_email="nick.morley111@gmail.com",
     description=" Build and match patterns for semantic role labelling",

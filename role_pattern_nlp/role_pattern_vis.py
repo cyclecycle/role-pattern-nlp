@@ -37,6 +37,7 @@ DEFAULT_NODE_ATTRS = {
     'style': 'rounded',
     'penwidth': 2,
     'margin': 0.25,
+    **DEFAULT_STYLE_ATTRS,
 }
 
 LEGEND_ATTRS = {

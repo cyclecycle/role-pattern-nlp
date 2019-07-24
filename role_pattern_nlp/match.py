@@ -1,5 +1,5 @@
 import collections
-from spacy.matcher import DependencyTreeMatcher
+from spacy.matcher import DependencyMatcher
 from role_pattern_nlp import role_pattern_vis
 
 
@@ -14,7 +14,7 @@ class RolePatternMatch(collections.UserDict):
 
 
 def build_matcher(vocab, pattern_dict):
-    matcher = DependencyTreeMatcher(vocab)
+    matcher = DependencyMatcher(vocab)
     for name, pattern in pattern_dict.items():
         dep_pattern = pattern['spacy_dep_pattern']
         matcher.add(name, None, dep_pattern)
@@ -27,14 +27,15 @@ def find_matches(doc, pattern, pattern_name='pattern'):
     matches = matcher(doc)
     labels = pattern['token_labels']
     match_list = []
-    for match_id, token_idxs in matches:
+    for match_id, match_trees in matches:
         pattern_name = matcher.vocab.strings[match_id]
-        tokens = [doc[idx] for idx in token_idxs]
-        labels = pattern['token_labels']
-        match_dict = label_tokens(tokens, labels)
-        match_dict = RolePatternMatch(match_dict)
-        match_dict.match_tokens = tokens
-        match_list.append(match_dict)
+        for token_idxs in match_trees:
+            tokens = [doc[idx] for idx in token_idxs]
+            labels = pattern['token_labels']
+            match_dict = label_tokens(tokens, labels)
+            match_dict = RolePatternMatch(match_dict)
+            match_dict.match_tokens = tokens
+            match_list.append(match_dict)
     return match_list
 
 
