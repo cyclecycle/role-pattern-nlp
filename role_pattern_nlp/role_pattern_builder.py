@@ -1,4 +1,4 @@
-from pprint import pformat
+from pprint import pformat, pprint
 import spacy_pattern_builder
 from role_pattern_nlp.role_pattern import RolePattern
 from role_pattern_nlp import validate
@@ -48,13 +48,13 @@ def build_role_pattern(match_example, feature_dict=DEFAULT_BUILD_PATTERN_TOKEN_F
     doc = util.doc_from_match(match_example)
     util.annotate_token_depth(doc)
     tokens = util.flatten_list(match_example.values())
-    tokens = [doc[token.i] for token in tokens]  # Ensure that tokens have the newly added depth attribute
+    tokens = [doc[idx] for idx in util.token_idxs(tokens)]  # Ensure that tokens have the newly added depth attribute
     nx_graph = util.doc_to_nx_graph(doc)
     match_tokens = util.smallest_connected_subgraph(tokens, nx_graph, doc)
     spacy_dep_pattern = spacy_pattern_builder.build_dependency_pattern(
         doc,
         match_tokens,
-        feature_dict=feature_dict
+        feature_dict=feature_dict,
     )
     token_labels = build_pattern_label_list(match_tokens, match_example)
     role_pattern = RolePattern(spacy_dep_pattern, token_labels)

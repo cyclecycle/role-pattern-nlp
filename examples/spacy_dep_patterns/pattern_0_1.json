@@ -1,65 +1,32 @@
 [
   {
     "SPEC": {
-      "NODE_NAME": "node19"
+      "NODE_NAME": "node1"
     },
     "PATTERN": {
-      "DEP": "pobj",
-      "TAG": "NNS"
+      "DEP": "ROOT",
+      "TAG": "VBP"
     }
   },
   {
     "SPEC": {
-      "NODE_NAME": "node20",
-      "NBOR_NAME": "node19",
+      "NODE_NAME": "node0",
+      "NBOR_NAME": "node1",
       "NBOR_RELOP": ">"
     },
     "PATTERN": {
-      "DEP": "acl",
-      "TAG": "VBN"
+      "DEP": "nsubj",
+      "TAG": "PRP"
     }
   },
   {
     "SPEC": {
-      "NODE_NAME": "node21",
-      "NBOR_NAME": "node20",
-      "NBOR_RELOP": ">"
+      "NODE_NAME": "node3",
+      "NBOR_NAME": "node0",
+      "NBOR_RELOP": "$--"
     },
     "PATTERN": {
-      "DEP": "agent",
-      "TAG": "IN"
-    }
-  },
-  {
-    "SPEC": {
-      "NODE_NAME": "node23",
-      "NBOR_NAME": "node21",
-      "NBOR_RELOP": ">"
-    },
-    "PATTERN": {
-      "DEP": "pobj",
-      "TAG": "NN"
-    }
-  },
-  {
-    "SPEC": {
-      "NODE_NAME": "node24",
-      "NBOR_NAME": "node23",
-      "NBOR_RELOP": ">"
-    },
-    "PATTERN": {
-      "DEP": "prep",
-      "TAG": "IN"
-    }
-  },
-  {
-    "SPEC": {
-      "NODE_NAME": "node27",
-      "NBOR_NAME": "node24",
-      "NBOR_RELOP": ">"
-    },
-    "PATTERN": {
-      "DEP": "pobj",
+      "DEP": "dobj",
       "TAG": "NNS"
     }
   }

@@ -57,13 +57,16 @@ def shortest_dependency_path(nx_graph, doc, source, target):
         idx = int(node.split('-')[-1])
         token = doc[idx]
         dep_path.append(token)
-    dep_path = sorted(dep_path, key=lambda t: t._.depth)
     return dep_path
 
 
 def smallest_connected_subgraph(with_tokens, nx_graph, doc):
     # Find root nodes
-    min_depth = min([t._.depth for t in with_tokens])
+    try:
+        min_depth = min([t._.depth for t in with_tokens])
+    except AttributeError:
+        doc = annotate_token_depth(doc)
+        min_depth = min([t._.depth for t in with_tokens])
     roots = [t for t in with_tokens if t._.depth == min_depth]
     non_roots = [t for t in with_tokens if t not in roots]
     tokens_touched = roots + non_roots
@@ -74,13 +77,13 @@ def smallest_connected_subgraph(with_tokens, nx_graph, doc):
             for t in path:
                 if t not in tokens_touched:
                     tokens_touched.append(t)
-    tokens_touched = sorted(tokens_touched, key=lambda t: t.i)
     # Trace paths between roots
     for root_x, root_y in itertools.combinations(roots, 2):
         path = shortest_dependency_path(nx_graph, doc, root_x, root_y)
         for t in path:
             if t not in tokens_touched:
                 tokens_touched.append(t)
+    tokens_touched = sorted(tokens_touched, key=lambda t: t.i)
     return tokens_touched
 
 
@@ -101,3 +104,11 @@ def doc_from_match(match):
     tokens = flatten_list(token_lists)
     doc = tokens[0].doc
     return doc
+
+
+def token_idxs(tokens):
+    return [t.i for t in tokens]
+
+
+def idxs_to_tokens(doc, idxs):
+    return [doc[idx] for idx in idxs]

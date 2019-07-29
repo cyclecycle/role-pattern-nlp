@@ -1,30 +1,40 @@
 [
   {
     "SPEC": {
-      "NODE_NAME": "node7"
+      "NODE_NAME": "node13"
     },
     "PATTERN": {
-      "DEP": "ROOT"
+      "DEP": "advcl"
     }
   },
   {
     "SPEC": {
-      "NODE_NAME": "node5",
-      "NBOR_NAME": "node7",
+      "NODE_NAME": "node15",
+      "NBOR_NAME": "node13",
       "NBOR_RELOP": ">"
     },
     "PATTERN": {
-      "DEP": "nsubjpass"
+      "DEP": "dobj"
     }
   },
   {
     "SPEC": {
-      "NODE_NAME": "node6",
-      "NBOR_NAME": "node5",
+      "NODE_NAME": "node16",
+      "NBOR_NAME": "node15",
       "NBOR_RELOP": "$--"
     },
     "PATTERN": {
-      "DEP": "auxpass"
+      "DEP": "prep"
+    }
+  },
+  {
+    "SPEC": {
+      "NODE_NAME": "node19",
+      "NBOR_NAME": "node16",
+      "NBOR_RELOP": ">"
+    },
+    "PATTERN": {
+      "DEP": "pobj"
     }
   }
 ]
