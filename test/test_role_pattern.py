@@ -17,11 +17,14 @@ text2 = 'The amyloid-beta oligomer hypothesis was introduced in 1998.'
 
 text3 = 'L-theanine alone improved self-reported relaxation, tension, and calmness starting at 200 mg.'
 
+text4 = 'These include maintaining a consistent bedtime routine, establishing healthy eating habits and exercise, avoiding caffeine and other substances that can exacerbate RLS, and stretching before bedtime.'
+
 doc1 = nlp(text1)
 doc2 = nlp(text2)
 doc3 = nlp(text3)
+doc4 = nlp(text4)
 
-docs = [doc1, doc2, doc3]
+docs = [doc1, doc2, doc3, doc4]
 
 
 cases = [
@@ -58,11 +61,20 @@ cases = [
         'example': {
             'doc': doc3,
             'match': {
-                'ant': idxs_to_tokens(doc3, [2]),  # theanine
-                'cons': idxs_to_tokens(doc3, [8]),  # relaxation
+                'ant': idxs_to_tokens(doc3, [2]),  # [theanine]
+                'cons': idxs_to_tokens(doc3, [8]),  # [relaxation]
             }
         },
-    }
+    },
+    {
+        'example': {
+            'doc': doc4,
+            'match': {
+                'ant': idxs_to_tokens(doc4, [16]),  # [caffeine]
+                'cons': idxs_to_tokens(doc4, [23]),  # [RLS]
+            }
+        },
+    },
 ]
 
 
@@ -78,6 +90,7 @@ def test_build_pattern_and_find_matches():
     for case in cases:
         doc = case['example']['doc']
         match_example = case['example']['match']
+        pprint(match_example)
         role_pattern_builder = RolePatternBuilder(feature_dict)
         for features in feature_combs:
             role_pattern = role_pattern_builder.build(

@@ -1,0 +1,36 @@
+[
+  {
+    "SPEC": {
+      "NODE_NAME": "node16"
+    },
+    "PATTERN": {
+      "DEP": "dobj",
+      "TAG": "NN",
+      "LOWER": "caffeine"
+    }
+  },
+  {
+    "SPEC": {
+      "NODE_NAME": "node22",
+      "NBOR_NAME": "node16",
+      "NBOR_RELOP": ">"
+    },
+    "PATTERN": {
+      "DEP": "relcl",
+      "TAG": "VB",
+      "LOWER": "exacerbate"
+    }
+  },
+  {
+    "SPEC": {
+      "NODE_NAME": "node23",
+      "NBOR_NAME": "node22",
+      "NBOR_RELOP": ">"
+    },
+    "PATTERN": {
+      "DEP": "dobj",
+      "TAG": "NNP",
+      "LOWER": "rls"
+    }
+  }
+]
