@@ -2,6 +2,7 @@ from pprint import pprint
 import pytest
 import json
 import en_core_web_sm
+from spacy.tokens import Token
 from role_pattern_nlp import RolePatternBuilder, RolePatternSet
 from role_pattern_nlp.exceptions import FeaturesNotInFeatureDictError
 from role_pattern_nlp import util
@@ -36,16 +37,16 @@ cases = [
                 'slot2': idxs_to_tokens(doc1, [1]),  # [introduce]
                 'slot3': idxs_to_tokens(doc1, [3]),  # [methods]
             },
-        },
+        }
     },
     {
         'example': {
             'doc': doc1,
             'match': {
                 'slot1': idxs_to_tokens(doc1, [13, 15]),  # [demonstrating, application]
-                'slot2': idxs_to_tokens(doc1, [16, 19])  # [to, courses]
+                'slot2': idxs_to_tokens(doc1, [16, 19]),  # [to, courses]
             },
-        },
+        }
     },
     {
         'example': {
@@ -53,9 +54,9 @@ cases = [
             'match': {
                 'arg1': idxs_to_tokens(doc1, [19]),  # [courses]
                 'pred': idxs_to_tokens(doc1, [20, 21]),  # [generated, by]
-                'arg2': idxs_to_tokens(doc1, [27])  # [models]
+                'arg2': idxs_to_tokens(doc1, [27]),  # [models]
             },
-        },
+        }
     },
     {
         'example': {
@@ -63,8 +64,8 @@ cases = [
             'match': {
                 'ant': idxs_to_tokens(doc3, [2]),  # [theanine]
                 'cons': idxs_to_tokens(doc3, [8]),  # [relaxation]
-            }
-        },
+            },
+        }
     },
     {
         'example': {
@@ -72,17 +73,13 @@ cases = [
             'match': {
                 'ant': idxs_to_tokens(doc4, [16]),  # [caffeine]
                 'cons': idxs_to_tokens(doc4, [23]),  # [RLS]
-            }
-        },
+            },
+        }
     },
 ]
 
 
-feature_combs = [
-    ['DEP', 'TAG', 'LOWER'],
-    ['DEP', 'TAG'],
-    ['DEP'],
-]
+feature_combs = [['DEP', 'TAG', 'LOWER'], ['DEP', 'TAG'], ['DEP']]
 
 
 def test_build_pattern_and_find_matches():
@@ -94,10 +91,36 @@ def test_build_pattern_and_find_matches():
         role_pattern_builder = RolePatternBuilder(feature_dict)
         for features in feature_combs:
             role_pattern = role_pattern_builder.build(
-                match_example, features=features, validate_pattern=True)
+                match_example, features=features, validate_pattern=True
+            )
             matches = role_pattern.match(doc)
             assert match_example in matches, 'does not match example'
             print('passed')
+
+
+def test_with_custom_extensions():
+    Token.set_extension('valence', default=False)
+    doc4[22]._.set('valence', 'UP')
+    feature_dict = {'DEP': 'dep_', '_': {'valence': 'valence'}}
+    case = {
+        'example': {
+            'doc': doc4,
+            'match': {
+                'head': idxs_to_tokens(doc4, [23]),  # [RLS]
+                'up': idxs_to_tokens(doc4, [22]),  # [exacerbate]
+            },
+        }
+    }
+    doc = case['example']['doc']
+    match_example = case['example']['match']
+    pprint(match_example)
+    role_pattern_builder = RolePatternBuilder(feature_dict)
+    role_pattern = role_pattern_builder.build(
+        match_example, validate_pattern=False
+    )
+    matches = role_pattern.match(doc)
+    assert match_example in matches, 'does not match example'
+    print('passed')
 
 
 def test_refine_pattern():
@@ -106,22 +129,24 @@ def test_refine_pattern():
         'prep': idxs_to_tokens(doc1, [4]),  # [for]
         'arg2': idxs_to_tokens(doc1, [7]),  # [models]
     }
-    neg_examples = [{
-        'arg1': idxs_to_tokens(doc1, [3]),  # [methods]
-        'prep': idxs_to_tokens(doc1, [8]),  # [to]
-        'arg2': idxs_to_tokens(doc1, [10]),  # [data]
-    }]
+    neg_examples = [
+        {
+            'arg1': idxs_to_tokens(doc1, [3]),  # [methods]
+            'prep': idxs_to_tokens(doc1, [8]),  # [to]
+            'arg2': idxs_to_tokens(doc1, [10]),  # [data]
+        }
+    ]
     # pprint(match_example)
     feature_dict = {'DEP': 'dep_', 'TAG': 'tag_', 'LOWER': 'lower_'}
     role_pattern_builder = RolePatternBuilder(feature_dict)
-    pattern = role_pattern_builder.build(
-        match_example, features=['DEP']
-    )
+    pattern = role_pattern_builder.build(match_example, features=['DEP'])
     matches = pattern.match(doc1)
     assert match_example in matches
     assert neg_examples[0] in matches
     # pattern = role_pattern_builder.refine(doc1, pattern, match_example, neg_examples)
-    refined_role_pattern_variants = role_pattern_builder.refine(pattern, match_example, neg_examples)
+    refined_role_pattern_variants = role_pattern_builder.refine(
+        pattern, match_example, neg_examples
+    )
     for role_pattern_variant in refined_role_pattern_variants:
         matches = role_pattern_variant.match(doc1)
         assert match_example in matches
@@ -130,9 +155,7 @@ def test_refine_pattern():
 
 def test_validate_features():
     match_examples = [
-        {
-            'slot1': idxs_to_tokens(doc1, [0, 1, 3])  # [We, introduce, methods]
-        },
+        {'slot1': idxs_to_tokens(doc1, [0, 1, 3])}  # [We, introduce, methods]
     ]
     feature_dict = {'DEP': 'dep_', 'TAG': 'tag_'}
     role_pattern_builder = RolePatternBuilder(feature_dict)
@@ -154,12 +177,16 @@ def test_visualise_pattern():
         role_pattern_builder = RolePatternBuilder(feature_dict)
         for features_i, features in enumerate(feature_combs):
             role_pattern = role_pattern_builder.build(match_example, features=features)
-            filepath = 'examples/spacy_dep_patterns/pattern_{}_{}.json'.format(test_i, features_i)
+            filepath = 'examples/spacy_dep_patterns/pattern_{}_{}.json'.format(
+                test_i, features_i
+            )
             with open(filepath, 'w') as f:
                 json.dump(role_pattern.spacy_dep_pattern, f, indent=2)
             pydot, legend = role_pattern.to_pydot(legend=True)
             png = pydot.create_png()
-            filename = 'examples/pattern_vis/pattern_{0}_{1}.png'.format(test_i, features_i)
+            filename = 'examples/pattern_vis/pattern_{0}_{1}.png'.format(
+                test_i, features_i
+            )
             with open(filename, 'wb') as f:
                 f.write(png)
 
@@ -189,7 +216,9 @@ def test_visualise_pattern_match():
             for match in matches:
                 graph, legend = match.to_pydot(legend=True)
                 png = graph.create_png()
-                filename = 'examples/match_vis/match_{0}_{1}.png'.format(test_i, features_i)
+                filename = 'examples/match_vis/match_{0}_{1}.png'.format(
+                    test_i, features_i
+                )
                 with open(filename, 'wb') as f:
                     f.write(png)
     png = legend.create_png()
