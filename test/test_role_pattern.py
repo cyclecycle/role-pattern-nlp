@@ -1,4 +1,5 @@
 from pprint import pprint
+import itertools
 import pytest
 import json
 import en_core_web_sm
@@ -20,17 +21,26 @@ text3 = 'L-theanine alone improved self-reported relaxation, tension, and calmne
 
 text4 = 'These include maintaining a consistent bedtime routine, establishing healthy eating habits and exercise, avoiding caffeine and other substances that can exacerbate RLS, and stretching before bedtime.'
 
+text5 = 'Smoking and heavy alcohol consumption were associated with increased risks.'
+
+text6 = 'In both CC and AA adults, greater adherence to a Prudent dietary pattern was associated with better cognitive outcomes.'
+
+text7 = 'However, expectancy and the related psychological permutations that are associated with oral CAF ingestion are generally not considered in most experimental designs and these could be important in understanding if/how CAF elicits an ergogenic effect.'
+
 doc1 = nlp(text1)
 doc2 = nlp(text2)
 doc3 = nlp(text3)
 doc4 = nlp(text4)
+doc5 = nlp(text5)
+doc6 = nlp(text6)
+doc7 = nlp(text7)
 
-docs = [doc1, doc2, doc3, doc4]
+docs = [doc1, doc2, doc3, doc4, doc5, doc6, doc7]
 
 
 cases = [
     {
-        'example': {
+        'training_example': {
             'doc': doc1,
             'match': {
                 'slot1': idxs_to_tokens(doc1, [0]),  # [We]
@@ -40,7 +50,7 @@ cases = [
         }
     },
     {
-        'example': {
+        'training_example': {
             'doc': doc1,
             'match': {
                 'slot1': idxs_to_tokens(doc1, [13, 15]),  # [demonstrating, application]
@@ -49,7 +59,7 @@ cases = [
         }
     },
     {
-        'example': {
+        'training_example': {
             'doc': doc1,
             'match': {
                 'arg1': idxs_to_tokens(doc1, [19]),  # [courses]
@@ -59,7 +69,7 @@ cases = [
         }
     },
     {
-        'example': {
+        'training_example': {
             'doc': doc3,
             'match': {
                 'ant': idxs_to_tokens(doc3, [2]),  # [theanine]
@@ -68,7 +78,7 @@ cases = [
         }
     },
     {
-        'example': {
+        'training_example': {
             'doc': doc4,
             'match': {
                 'ant': idxs_to_tokens(doc4, [16]),  # [caffeine]
@@ -76,93 +86,117 @@ cases = [
             },
         }
     },
+    {
+        'training_example': {
+            'doc': doc5,
+            'match': {
+                'ant': idxs_to_tokens(doc5, [0]),  # [consumption]
+                'cons': idxs_to_tokens(doc5, [9]),  # [risks]
+            },
+        },
+        'pos_examples': {
+            'doc': doc6,
+            'match': {
+                'ant': idxs_to_tokens(doc6, [8]),  # [adherence]
+                'cons': idxs_to_tokens(doc6, [19]),  # [outcomes]
+            },
+        },
+        'neg_examples': [
+            {
+                'doc': doc7,
+                'match': {
+                    'ant': idxs_to_tokens(doc7, [2]),  # [expectancy]
+                    'cons': idxs_to_tokens(doc7, [22]),  # [designs]
+                }
+            },
+        ],
+    },
 ]
 
 
 feature_combs = [['DEP', 'TAG', 'LOWER'], ['DEP', 'TAG'], ['DEP']]
 
 
-def test_build_pattern_and_find_matches():
-    feature_dict = {'DEP': 'dep_', 'TAG': 'tag_', 'LOWER': 'lower_'}
-    for case in cases:
-        doc = case['example']['doc']
-        match_example = case['example']['match']
-        pprint(match_example)
-        role_pattern_builder = RolePatternBuilder(feature_dict)
-        for features in feature_combs:
-            role_pattern = role_pattern_builder.build(
-                match_example, features=features, validate_pattern=True
-            )
-            matches = role_pattern.match(doc)
-            assert match_example in matches, 'does not match example'
-            print('passed')
+# def test_build_pattern_and_find_matches():
+#     feature_dict = {'DEP': 'dep_', 'TAG': 'tag_', 'LOWER': 'lower_'}
+#     for case in cases:
+#         doc = case['training_example']['doc']
+#         match_example = case['training_example']['match']
+#         pprint(match_example)
+#         role_pattern_builder = RolePatternBuilder(feature_dict)
+#         for features in feature_combs:
+#             role_pattern = role_pattern_builder.build(
+#                 match_example, features=features, validate_pattern=True
+#             )
+#             matches = role_pattern.match(doc)
+#             assert match_example in matches, 'does not match example'
+#             print('passed')
 
 
-def test_with_custom_extensions():
-    Token.set_extension('valence', default=False)
-    doc4[22]._.set('valence', 'UP')
-    feature_dict = {'DEP': 'dep_', '_': {'valence': 'valence'}}
-    case = {
-        'example': {
-            'doc': doc4,
-            'match': {
-                'head': idxs_to_tokens(doc4, [23]),  # [RLS]
-                'up': idxs_to_tokens(doc4, [22]),  # [exacerbate]
-            },
-        }
-    }
-    doc = case['example']['doc']
-    match_example = case['example']['match']
-    pprint(match_example)
-    role_pattern_builder = RolePatternBuilder(feature_dict)
-    role_pattern = role_pattern_builder.build(
-        match_example, validate_pattern=False
-    )
-    matches = role_pattern.match(doc)
-    assert match_example in matches, 'does not match example'
-    print('passed')
+# def test_with_custom_extensions():
+#     Token.set_extension('valence', default=False)
+#     doc4[22]._.set('valence', 'UP')
+#     feature_dict = {'DEP': 'dep_', '_': {'valence': 'valence'}}
+#     case = {
+#         'training_example': {
+#             'doc': doc4,
+#             'match': {
+#                 'head': idxs_to_tokens(doc4, [23]),  # [RLS]
+#                 'up': idxs_to_tokens(doc4, [22]),  # [exacerbate]
+#             },
+#         }
+#     }
+#     doc = case['training_example']['doc']
+#     match_example = case['training_example']['match']
+#     pprint(match_example)
+#     role_pattern_builder = RolePatternBuilder(feature_dict)
+#     role_pattern = role_pattern_builder.build(
+#         match_example, validate_pattern=False
+#     )
+#     matches = role_pattern.match(doc)
+#     assert match_example in matches, 'does not match example'
+#     print('passed')
 
 
 def test_refine_pattern():
-    match_example = {
-        'arg1': idxs_to_tokens(doc1, [3]),  # [methods]
-        'prep': idxs_to_tokens(doc1, [4]),  # [for]
-        'arg2': idxs_to_tokens(doc1, [7]),  # [models]
-    }
-    neg_examples = [
-        {
-            'arg1': idxs_to_tokens(doc1, [3]),  # [methods]
-            'prep': idxs_to_tokens(doc1, [8]),  # [to]
-            'arg2': idxs_to_tokens(doc1, [10]),  # [data]
-        }
-    ]
-    # pprint(match_example)
-    feature_dict = {'DEP': 'dep_', 'TAG': 'tag_', 'LOWER': 'lower_'}
-    role_pattern_builder = RolePatternBuilder(feature_dict)
-    pattern = role_pattern_builder.build(match_example, features=['DEP'])
-    matches = pattern.match(doc1)
-    assert match_example in matches
-    assert neg_examples[0] in matches
-    # pattern = role_pattern_builder.refine(doc1, pattern, match_example, neg_examples)
-    refined_role_pattern_variants = role_pattern_builder.refine(
-        pattern, match_example, neg_examples
-    )
-    for role_pattern_variant in refined_role_pattern_variants:
-        matches = role_pattern_variant.match(doc1)
+    refine_cases = [case for case in cases if 'neg_examples' in case]
+    for case in refine_cases:
+        doc = case['training_example']['doc']
+        match_example = case['training_example']['match']
+        neg_examples = case['neg_examples']
+        docs = [doc]
+        docs += [example['doc'] for example in neg_examples]
+        feature_dict = {'DEP': 'dep_', 'TAG': 'tag_'}
+        role_pattern_builder = RolePatternBuilder(feature_dict)
+        pattern = role_pattern_builder.build(match_example)
+        matches = [pattern.match(d) for d in docs]
+        matches = list(itertools.chain(*matches))
+        print(matches)
         assert match_example in matches
-        assert neg_examples[0] not in matches
+        neg_matches = [example['match'] for example in neg_examples]
+        for neg_match in neg_matches:
+            assert neg_match in matches
+        refined_role_pattern_variants = role_pattern_builder.refine(
+            pattern, match_example, neg_match
+        )
+        for role_pattern_variant in refined_role_pattern_variants:
+            matches = [role_pattern_variant.match(d) for d in docs]
+            matches = list(itertools.chain(*matches))
+            assert match_example in matches
+            for neg_match in neg_matches:
+                assert neg_match not in matches
 
 
-def test_validate_features():
-    match_examples = [
-        {'slot1': idxs_to_tokens(doc1, [0, 1, 3])}  # [We, introduce, methods]
-    ]
-    feature_dict = {'DEP': 'dep_', 'TAG': 'tag_'}
-    role_pattern_builder = RolePatternBuilder(feature_dict)
-    features = ['DEP', 'TAG', 'LOWER']
-    for match_example in match_examples:
-        with pytest.raises(FeaturesNotInFeatureDictError):
-            role_pattern_builder.build(match_example, features=features)
+# def test_validate_features():
+#     match_examples = [
+#         {'slot1': idxs_to_tokens(doc1, [0, 1, 3])}  # [We, introduce, methods]
+#     ]
+#     feature_dict = {'DEP': 'dep_', 'TAG': 'tag_'}
+#     role_pattern_builder = RolePatternBuilder(feature_dict)
+#     features = ['DEP', 'TAG', 'LOWER']
+#     for match_example in match_examples:
+#         with pytest.raises(FeaturesNotInFeatureDictError):
+#             role_pattern_builder.build(match_example, features=features)
 
 
 def test_visualise_pattern():
@@ -173,7 +207,7 @@ def test_visualise_pattern():
             f.write(png)
     feature_dict = {'DEP': 'dep_', 'TAG': 'tag_', 'LOWER': 'lower_'}
     for test_i, case in enumerate(cases):
-        match_example = case['example']['match']
+        match_example = case['training_example']['match']
         role_pattern_builder = RolePatternBuilder(feature_dict)
         for features_i, features in enumerate(feature_combs):
             role_pattern = role_pattern_builder.build(match_example, features=features)
@@ -195,7 +229,7 @@ def test_visualise_pattern_legend():
     feature_dict = {'DEP': 'dep_', 'TAG': 'tag_', 'LOWER': 'lower_'}
     role_pattern_builder = RolePatternBuilder(feature_dict)
     case = cases[1]
-    match_example = case['example']['match']
+    match_example = case['training_example']['match']
     role_pattern = role_pattern_builder.build(match_example)
     pydot, legend = role_pattern.to_pydot(legend=True)
     png = legend.create_png()
@@ -204,27 +238,27 @@ def test_visualise_pattern_legend():
         f.write(png)
 
 
-def test_visualise_pattern_match():
-    feature_dict = {'DEP': 'dep_', 'TAG': 'tag_', 'LOWER': 'lower_'}
-    for test_i, case in enumerate(cases):
-        doc = case['example']['doc']
-        match_example = case['example']['match']
-        role_pattern_builder = RolePatternBuilder(feature_dict)
-        for features_i, features in enumerate(feature_combs):
-            role_pattern = role_pattern_builder.build(match_example, features=features)
-            matches = role_pattern.match(doc)
-            for match in matches:
-                graph, legend = match.to_pydot(legend=True)
-                png = graph.create_png()
-                filename = 'examples/match_vis/match_{0}_{1}.png'.format(
-                    test_i, features_i
-                )
-                with open(filename, 'wb') as f:
-                    f.write(png)
-    png = legend.create_png()
-    filename = 'examples/match_vis/match_{0}_{1}_legend.png'.format(test_i, features_i)
-    with open(filename, 'wb') as f:
-        f.write(png)
+# def test_visualise_pattern_match():
+#     feature_dict = {'DEP': 'dep_', 'TAG': 'tag_', 'LOWER': 'lower_'}
+#     for test_i, case in enumerate(cases):
+#         doc = case['training_example']['doc']
+#         match_example = case['training_example']['match']
+#         role_pattern_builder = RolePatternBuilder(feature_dict)
+#         for features_i, features in enumerate(feature_combs):
+#             role_pattern = role_pattern_builder.build(match_example, features=features)
+#             matches = role_pattern.match(doc)
+#             for match in matches:
+#                 graph, legend = match.to_pydot(legend=True)
+#                 png = graph.create_png()
+#                 filename = 'examples/match_vis/match_{0}_{1}.png'.format(
+#                     test_i, features_i
+#                 )
+#                 with open(filename, 'wb') as f:
+#                     f.write(png)
+#     png = legend.create_png()
+#     filename = 'examples/match_vis/match_{0}_{1}_legend.png'.format(test_i, features_i)
+#     with open(filename, 'wb') as f:
+#         f.write(png)
 
 
 # def test_role_pattern_set():
