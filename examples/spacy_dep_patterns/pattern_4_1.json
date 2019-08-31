@@ -15,7 +15,7 @@
       "NBOR_RELOP": ">"
     },
     "PATTERN": {
-      "DEP": "relcl",
+      "DEP": "parataxis",
       "TAG": "VB"
     }
   },
@@ -27,7 +27,7 @@
     },
     "PATTERN": {
       "DEP": "dobj",
-      "TAG": "NNP"
+      "TAG": "NN"
     }
   }
 ]

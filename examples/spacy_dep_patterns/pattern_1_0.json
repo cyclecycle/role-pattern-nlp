@@ -23,26 +23,26 @@
   },
   {
     "SPEC": {
-      "NODE_NAME": "node16",
+      "NODE_NAME": "node19",
       "NBOR_NAME": "node15",
-      "NBOR_RELOP": "$--"
+      "NBOR_RELOP": ">"
     },
     "PATTERN": {
-      "DEP": "prep",
-      "TAG": "IN",
-      "LOWER": "to"
+      "DEP": "nmod",
+      "TAG": "NNS",
+      "LOWER": "courses"
     }
   },
   {
     "SPEC": {
-      "NODE_NAME": "node19",
-      "NBOR_NAME": "node16",
+      "NODE_NAME": "node16",
+      "NBOR_NAME": "node19",
       "NBOR_RELOP": ">"
     },
     "PATTERN": {
-      "DEP": "pobj",
-      "TAG": "NNS",
-      "LOWER": "courses"
+      "DEP": "case",
+      "TAG": "TO",
+      "LOWER": "to"
     }
   }
 ]

@@ -1,36 +1,36 @@
 [
   {
     "SPEC": {
-      "NODE_NAME": "node4"
+      "NODE_NAME": "node2"
     },
     "PATTERN": {
       "DEP": "ROOT",
-      "TAG": "VBN",
+      "TAG": "VBD",
       "LOWER": "improved"
     }
   },
   {
     "SPEC": {
-      "NODE_NAME": "node2",
-      "NBOR_NAME": "node4",
-      "NBOR_RELOP": ">"
-    },
-    "PATTERN": {
-      "DEP": "nsubj",
-      "TAG": "NN",
-      "LOWER": "theanine"
-    }
-  },
-  {
-    "SPEC": {
-      "NODE_NAME": "node8",
+      "NODE_NAME": "node4",
       "NBOR_NAME": "node2",
-      "NBOR_RELOP": "$--"
+      "NBOR_RELOP": ">"
     },
     "PATTERN": {
       "DEP": "dobj",
       "TAG": "NN",
       "LOWER": "relaxation"
+    }
+  },
+  {
+    "SPEC": {
+      "NODE_NAME": "node8",
+      "NBOR_NAME": "node4",
+      "NBOR_RELOP": ">"
+    },
+    "PATTERN": {
+      "DEP": "cc",
+      "TAG": "CC",
+      "LOWER": "and"
     }
   }
 ]

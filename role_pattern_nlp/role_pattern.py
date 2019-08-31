@@ -12,6 +12,7 @@ class RolePattern():
         self.name = 'pattern'
         self.builder = None
         self.label2colour = {}  # For visualisation
+        self.training_match = None
 
     def match(self, doc):
         pattern = {'spacy_dep_pattern': self.spacy_dep_pattern, 'token_labels': self.token_labels}

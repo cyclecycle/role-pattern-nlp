@@ -19,22 +19,22 @@
   },
   {
     "SPEC": {
-      "NODE_NAME": "node16",
+      "NODE_NAME": "node19",
       "NBOR_NAME": "node15",
-      "NBOR_RELOP": "$--"
+      "NBOR_RELOP": ">"
     },
     "PATTERN": {
-      "DEP": "prep"
+      "DEP": "nmod"
     }
   },
   {
     "SPEC": {
-      "NODE_NAME": "node19",
-      "NBOR_NAME": "node16",
+      "NODE_NAME": "node16",
+      "NBOR_NAME": "node19",
       "NBOR_RELOP": ">"
     },
     "PATTERN": {
-      "DEP": "pobj"
+      "DEP": "case"
     }
   }
 ]

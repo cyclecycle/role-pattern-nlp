@@ -1,6 +1,8 @@
 from pprint import pformat, pprint
+import itertools
 import spacy_pattern_builder
 from role_pattern_nlp.role_pattern import RolePattern
+from role_pattern_nlp import mutate
 from role_pattern_nlp import validate
 from role_pattern_nlp import util
 from role_pattern_nlp.constants import (
@@ -32,25 +34,105 @@ class RolePatternBuilder:
     def refine(
         self,
         pattern,
-        pos_example,
-        neg_examples,
-        feature_sets=DEFAULT_REFINE_PATTERN_FEATURE_COMBINATIONS,
+        pos_matches,
+        neg_matches,
+        feature_dicts=[DEFAULT_BUILD_PATTERN_TOKEN_FEATURE_DICT],
+        fitness_func=mutate.pattern_fitness,
+        tree_extension_depth=2,
     ):
-        all_features = set(util.flatten_list(feature_sets))
-        self.validate_features(all_features)
-        # Check that all required features present in spacy_dependency_pattern.
-        # If not, build an intermediary pattern with the required features.
-        all_features_are_in_pattern = validate.features_are_in_role_pattern(
-            all_features, pattern
+        training_match = pos_matches[0]  # Take first pos_match as blue print
+        all_matches = pos_matches + neg_matches
+        docs = [util.doc_from_match(match) for match in all_matches]
+        docs = util.unique_list(docs)
+        new_pattern_feature_dict = feature_dicts[0]
+
+        def get_matches(pattern):
+            matches = [pattern.match(d) for d in docs]
+            matches = util.flatten_list(matches)
+            return matches
+
+        def get_fitnesses(patterns, pos_matches, neg_matches):
+            matches = [get_matches(variant) for variant in patterns]
+            fitnesses = [
+                fitness_func(variant, matches, pos_matches, neg_matches)
+                for variant, matches in zip(patterns, matches)
+            ]
+            return fitnesses
+
+        def get_best_fitness_score(fitnesses):
+            best_fitness_score = max([fitness['score'] for fitness in fitnesses])
+            return best_fitness_score
+
+        def get_node_level_variants(patterns):
+            pattern_variants = [
+                mutate.yield_node_level_pattern_variants(
+                    variant, variant.training_match, feature_dicts
+                )
+                for variant in patterns
+            ]
+            pattern_variants = util.flatten_list(pattern_variants)
+            return pattern_variants
+
+        def get_tree_level_variants(patterns):
+            pattern_variants = [
+                mutate.yield_tree_level_pattern_variants(
+                    variant, variant.training_match, new_pattern_feature_dict
+                )
+                for variant in patterns
+            ]
+            pattern_variants = util.flatten_list(pattern_variants)
+            return pattern_variants
+
+        def get_best_variants(variants, fitnesses, best_fitness_score):
+            best_variants = [
+                variant
+                for variant, fitness in zip(pattern_variants, fitnesses)
+                if fitness['score'] == best_fitness_score
+            ]
+            return best_variants
+
+        def get_shortest_variants(variants):
+            shortest_length = min(
+                [len(variant.spacy_dep_pattern) for variant in variants]
+            )
+            shortest_variants = [
+                variant
+                for variant in variants
+                if len(variant.spacy_dep_pattern) == shortest_length
+            ]
+            return shortest_variants
+
+        def remove_duplicates(variants):
+            unique_variants = []
+            dep_patterns_already = []
+            for variant in variants:
+                if variant.spacy_dep_pattern not in dep_patterns_already:
+                    unique_variants.append(variant)
+                dep_patterns_already.append(variant.spacy_dep_pattern)
+            return unique_variants
+
+        pattern.training_match = training_match
+        pattern_variants = [pattern]
+
+        for i in range(tree_extension_depth):
+            pattern_variants += get_tree_level_variants(pattern_variants)
+
+        fitnesses = get_fitnesses(pattern_variants, pos_matches, neg_matches)
+
+        best_fitness_score = get_best_fitness_score(fitnesses)
+        if best_fitness_score == 1.0 or len(pattern_variants) == 1:
+            return pattern_variants
+
+        pattern_variants = get_node_level_variants(pattern_variants)
+        fitnesses = get_fitnesses(pattern_variants, pos_matches, neg_matches)
+        best_fitness_score = get_best_fitness_score(fitnesses)
+        pattern_variants = get_best_variants(
+            pattern_variants, fitnesses, best_fitness_score
         )
-        if not all_features_are_in_pattern:
-            pattern = self.build(
-                pos_example
-            )  # Uses all the features in the builder's feature_dict
-        refined_pattern_variants = yield_refined_pattern_variants(
-            pattern, pos_example, neg_examples, feature_sets
-        )
-        return refined_pattern_variants
+        pattern_variants = get_shortest_variants(pattern_variants)
+        pattern_variants = remove_duplicates(pattern_variants)
+
+        return pattern_variants
 
     def validate_features(self, features):
         features_not_in_feature_dict = [
@@ -119,6 +201,7 @@ def build_role_pattern(
 
 
 def build_pattern_label_list(match_tokens, match_example):
+    match_tokens = sorted(match_tokens, key=lambda t: t.i)
     match_token_labels = []
     for w in match_tokens:
         label = None
@@ -130,36 +213,3 @@ def build_pattern_label_list(match_tokens, match_example):
                 label = label_
         match_token_labels.append(label)
     return match_token_labels
-
-
-def yield_role_pattern_permutations(role_pattern, feature_sets):
-    spacy_dependency_pattern = role_pattern.spacy_dep_pattern
-    match_token_labels = role_pattern.token_labels
-    dependency_pattern_variants = spacy_pattern_builder.yield_pattern_permutations(
-        spacy_dependency_pattern, feature_sets
-    )
-    for dependency_pattern_variant in dependency_pattern_variants:
-        assert len(dependency_pattern_variant) == len(spacy_dependency_pattern)
-        role_pattern_variant = RolePattern(
-            dependency_pattern_variant, match_token_labels
-        )
-        yield role_pattern_variant
-
-
-def yield_refined_pattern_variants(
-    role_pattern, pos_example, neg_examples, feature_sets
-):
-    pos_example_doc = util.doc_from_match(pos_example)
-    role_pattern_variants = yield_role_pattern_permutations(role_pattern, feature_sets)
-    for role_pattern_variant in role_pattern_variants:
-        matches = role_pattern_variant.match(pos_example_doc)
-        pattern_matches_pos_example = pos_example in matches
-        neg_example_matches = []
-        for neg_example in neg_examples:
-            doc = util.doc_from_match(neg_example)
-            matches = role_pattern_variant.match(doc)
-            if neg_example in matches:
-                neg_example_matches.append(neg_example)
-        pattern_matches_neg_examples = bool(neg_example_matches)
-        if not pattern_matches_neg_examples and pattern_matches_pos_example:
-            yield role_pattern_variant

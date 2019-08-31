@@ -14,7 +14,7 @@
       "NBOR_RELOP": ">"
     },
     "PATTERN": {
-      "DEP": "relcl"
+      "DEP": "parataxis"
     }
   },
   {

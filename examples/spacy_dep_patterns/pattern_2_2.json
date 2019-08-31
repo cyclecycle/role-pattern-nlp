@@ -4,7 +4,7 @@
       "NODE_NAME": "node19"
     },
     "PATTERN": {
-      "DEP": "pobj"
+      "DEP": "nmod"
     }
   },
   {
@@ -19,42 +19,32 @@
   },
   {
     "SPEC": {
-      "NODE_NAME": "node21",
+      "NODE_NAME": "node23",
       "NBOR_NAME": "node20",
       "NBOR_RELOP": ">"
     },
     "PATTERN": {
-      "DEP": "agent"
+      "DEP": "nmod"
     }
   },
   {
     "SPEC": {
-      "NODE_NAME": "node23",
-      "NBOR_NAME": "node21",
-      "NBOR_RELOP": ">"
-    },
-    "PATTERN": {
-      "DEP": "pobj"
-    }
-  },
-  {
-    "SPEC": {
-      "NODE_NAME": "node24",
+      "NODE_NAME": "node21",
       "NBOR_NAME": "node23",
       "NBOR_RELOP": ">"
     },
     "PATTERN": {
-      "DEP": "prep"
+      "DEP": "case"
     }
   },
   {
     "SPEC": {
       "NODE_NAME": "node27",
-      "NBOR_NAME": "node24",
-      "NBOR_RELOP": ">"
+      "NBOR_NAME": "node21",
+      "NBOR_RELOP": "$--"
     },
     "PATTERN": {
-      "DEP": "pobj"
+      "DEP": "nmod"
     }
   }
 ]
