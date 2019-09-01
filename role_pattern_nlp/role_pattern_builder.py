@@ -117,10 +117,20 @@ class RolePatternBuilder:
         for i in range(tree_extension_depth):
             pattern_variants += get_tree_level_variants(pattern_variants)
 
+        pattern_variants = remove_duplicates(pattern_variants)
         fitnesses = get_fitnesses(pattern_variants, pos_matches, neg_matches)
 
         best_fitness_score = get_best_fitness_score(fitnesses)
+
+        # util.interactive_pattern_evaluation(
+        #     pattern_variants, fitnesses, best_fitness_score
+        # )
+
         if best_fitness_score == 1.0 or len(pattern_variants) == 1:
+            pattern_variants = get_best_variants(
+                pattern_variants, fitnesses, best_fitness_score
+            )
+            pattern_variants = get_shortest_variants(pattern_variants)
             return pattern_variants
 
         pattern_variants = get_node_level_variants(pattern_variants)
@@ -130,7 +140,6 @@ class RolePatternBuilder:
             pattern_variants, fitnesses, best_fitness_score
         )
         pattern_variants = get_shortest_variants(pattern_variants)
-        pattern_variants = remove_duplicates(pattern_variants)
 
         return pattern_variants
 

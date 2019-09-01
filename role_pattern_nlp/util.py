@@ -1,3 +1,4 @@
+from pprint import pprint
 import itertools
 from spacy.tokens import Token
 import networkx as nx
@@ -112,3 +113,12 @@ def token_idxs(tokens):
 
 def idxs_to_tokens(doc, idxs):
     return [doc[idx] for idx in idxs]
+
+
+def interactive_pattern_evaluation(patterns, fitnesses, best_fitness_score):
+    for pattern, fitness in zip(patterns, fitnesses):
+        if fitness['score'] == 1.0:
+            pprint(pattern.spacy_dep_pattern)
+            print()
+            pprint(fitness)
+            input()
