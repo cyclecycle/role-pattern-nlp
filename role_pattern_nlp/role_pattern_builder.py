@@ -122,11 +122,7 @@ class RolePatternBuilder:
 
         best_fitness_score = get_best_fitness_score(fitnesses)
 
-        # util.interactive_pattern_evaluation(
-        #     pattern_variants, fitnesses, best_fitness_score
-        # )
-
-        if best_fitness_score == 1.0 or len(pattern_variants) == 1:
+        if best_fitness_score == 1.0:
             pattern_variants = get_best_variants(
                 pattern_variants, fitnesses, best_fitness_score
             )
@@ -136,6 +132,11 @@ class RolePatternBuilder:
         pattern_variants = get_node_level_variants(pattern_variants)
         fitnesses = get_fitnesses(pattern_variants, pos_matches, neg_matches)
         best_fitness_score = get_best_fitness_score(fitnesses)
+
+        # util.interactive_pattern_evaluation(
+        #     pattern_variants, fitnesses, fitness_floor=0
+        # )
+
         pattern_variants = get_best_variants(
             pattern_variants, fitnesses, best_fitness_score
         )

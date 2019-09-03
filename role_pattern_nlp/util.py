@@ -40,8 +40,12 @@ def doc_to_nx_graph(doc):
     edges = []
     for token in doc:
         for child in token.children:
-            edges.append(('{0}-{1}'.format(token.text, token.i),
-                          '{0}-{1}'.format(child.text, child.i)))
+            edges.append(
+                (
+                    '{0}-{1}'.format(token.text, token.i),
+                    '{0}-{1}'.format(child.text, child.i),
+                )
+            )
     graph = nx.Graph(edges)
     return graph
 
@@ -115,9 +119,15 @@ def idxs_to_tokens(doc, idxs):
     return [doc[idx] for idx in idxs]
 
 
-def interactive_pattern_evaluation(patterns, fitnesses, best_fitness_score):
-    for pattern, fitness in zip(patterns, fitnesses):
-        if fitness['score'] == 1.0:
+def interactive_pattern_evaluation(patterns, fitnesses, fitness_floor=0.5):
+    patterns_above_fitness_floor = [
+        (pattern, fitness)
+        for pattern, fitness in zip(patterns, fitnesses)
+        if fitness['score'] >= fitness_floor
+    ]
+    print('patterns above fitness floor:', len(patterns_above_fitness_floor))
+    for pattern, fitness in patterns_above_fitness_floor:
+        if fitness['score'] >= fitness_floor:
             pprint(pattern.spacy_dep_pattern)
             print()
             pprint(fitness)
