@@ -3,19 +3,23 @@ from role_pattern_nlp import match
 from role_pattern_nlp import role_pattern_vis
 
 
-class RolePattern():
-
+class RolePattern:
     def __init__(self, spacy_dep_pattern, token_labels):
         self.spacy_dep_pattern = spacy_dep_pattern
         self.token_labels = token_labels
-        self.token_labels_depth_order = None  # Corresponds one-to-one with spacy_dep_pattern
+        self.token_labels_depth_order = (
+            None
+        )  # Corresponds one-to-one with spacy_dep_pattern
         self.name = 'pattern'
         self.builder = None
         self.label2colour = {}  # For visualisation
         self.training_match = None
 
     def match(self, doc):
-        pattern = {'spacy_dep_pattern': self.spacy_dep_pattern, 'token_labels': self.token_labels}
+        pattern = {
+            'spacy_dep_pattern': self.spacy_dep_pattern,
+            'token_labels': self.token_labels,
+        }
         matches = match.find_matches(doc, pattern, 'pattern')
         return matches
 
@@ -24,3 +28,12 @@ class RolePattern():
 
     def match_to_pydot(self, match, **kwargs):
         return role_pattern_vis.match_to_pydot(self, match, **kwargs)
+
+    def write_vis(self, outpath, legend=False, **kwargs):
+        if legend:
+            pydot, legend = self.to_pydot(legend=True)
+        else:
+            pydot = self.to_pydot(legend=False)
+        png = pydot.create_png()
+        with open(outpath, 'wb') as f:
+            f.write(png)

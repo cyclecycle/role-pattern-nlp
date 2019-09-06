@@ -364,7 +364,7 @@ def test_with_custom_extensions():
 
 def test_refine_pattern():
     refine_cases = [case for case in cases if 'neg_examples' in case]
-    for case in refine_cases:
+    for case_i, case in enumerate(refine_cases):
         training_match = case['training_example']['match']
         neg_examples = case['neg_examples']
         feature_dicts = [
@@ -437,13 +437,10 @@ def test_visualise_pattern():
             )
             with open(filepath, 'w') as f:
                 json.dump(role_pattern.spacy_dep_pattern, f, indent=2)
-            pydot, legend = role_pattern.to_pydot(legend=True)
-            png = pydot.create_png()
-            filename = 'examples/pattern_vis/pattern_{0}_{1}.png'.format(
+            outpath = 'examples/pattern_vis/pattern_{0}_{1}.png'.format(
                 test_i, features_i
             )
-            with open(filename, 'wb') as f:
-                f.write(png)
+            role_pattern.write_vis(outpath, legend=True)
 
 
 def test_visualise_pattern_legend():

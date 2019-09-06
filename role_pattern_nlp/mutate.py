@@ -37,6 +37,9 @@ def yield_node_level_pattern_variants(role_pattern, training_match, feature_dict
         role_pattern_variant = RolePattern(
             dependency_pattern_variant, match_token_labels
         )
+        role_pattern_variant.token_labels_depth_order = (
+            role_pattern.token_labels_depth_order
+        )
         role_pattern_variant.training_match = training_match
         yield role_pattern_variant
 
@@ -57,6 +60,7 @@ def yield_tree_level_pattern_variants(role_pattern, training_match, feature_dict
         )
         assert len(token_labels) == len(role_pattern.token_labels) + 1
         role_pattern_variant = RolePattern(dependency_pattern_variant, token_labels)
+        role_pattern_variant.token_labels_depth_order = token_labels
         role_pattern_variant.builder = role_pattern.builder
         new_training_match = RolePatternMatch(training_match)
         new_training_match.match_tokens = match_tokens
