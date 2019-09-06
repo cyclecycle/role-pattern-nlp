@@ -1,0 +1,30 @@
+[
+  {
+    "SPEC": {
+      "NODE_NAME": "node11"
+    },
+    "PATTERN": {
+      "DEP": "ccomp"
+    }
+  },
+  {
+    "SPEC": {
+      "NODE_NAME": "node9",
+      "NBOR_NAME": "node11",
+      "NBOR_RELOP": ">"
+    },
+    "PATTERN": {
+      "DEP": "nsubj"
+    }
+  },
+  {
+    "SPEC": {
+      "NODE_NAME": "node13",
+      "NBOR_NAME": "node9",
+      "NBOR_RELOP": "$--"
+    },
+    "PATTERN": {
+      "DEP": "dobj"
+    }
+  }
+]

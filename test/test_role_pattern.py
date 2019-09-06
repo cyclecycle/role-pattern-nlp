@@ -58,6 +58,10 @@ text18 = 'This study determined chronic influence of prenatal caffeine at relati
 
 text19 = 'Caffeine readministration alleviated all withdrawal symptoms and cognitive decrements within 45 min.'
 
+text20 = 'In addition to the previous data demonstrating that valproic acid can upregulate NEP expression both in neuroblastoma cells and in rat Cx and Hip we have further confirmed that caspase inhibitors can also restore NEP expression in rat Cx reduced after prenatal hypoxia.'
+
+text21 = 'Results revealed that adjunctive L-theanine did not outperform placebo for anxiety reduction on the HAMA (p=0.73) nor insomnia severity on the Insomnia Severity Index (ISI; p=0.35).'
+
 doc1 = nlp(text1)
 doc2 = nlp(text2)
 doc3 = nlp(text3)
@@ -77,14 +81,18 @@ doc16 = nlp(text16)
 doc17 = nlp(text17)
 doc18 = nlp(text18)
 doc19 = nlp(text19)
+doc20 = nlp(text20)
+doc21 = nlp(text21)
 
 
 doc14[6]._.set('valence', 'DOWN')
 doc15[3]._.set('valence', 'DOWN')
 doc16[3]._.set('valence', 'UP')
+doc20[11]._.set('valence', 'UP')
 doc14[6]._.set('has_valence', True)
 doc15[3]._.set('has_valence', True)
 doc16[3]._.set('has_valence', True)
+doc20[11]._.set('has_valence', True)
 
 
 docs = [
@@ -107,6 +115,8 @@ docs = [
     doc17,
     doc18,
     doc19,
+    doc20,
+    doc21,
 ]
 
 
@@ -289,6 +299,24 @@ cases = [
             },
         ],
     },
+    {
+        'training_example': {
+            'doc': doc20,
+            'match': {
+                'ant': idxs_to_tokens(doc20, [9]),  # [acid]
+                'cons': idxs_to_tokens(doc20, [13]),  # [expression]
+            },
+        },
+        'neg_examples': [
+            {
+                'doc': doc21,
+                'match': {
+                    'ant': idxs_to_tokens(doc21, [4]),  # [L-theanine]
+                    'cons': idxs_to_tokens(doc21, [8]),  # [placebo]
+                },
+            },
+        ],
+    },
 ]
 
 
@@ -337,13 +365,13 @@ def test_with_custom_extensions():
 def test_refine_pattern():
     refine_cases = [case for case in cases if 'neg_examples' in case]
     for case in refine_cases:
-        doc = case['training_example']['doc']
         training_match = case['training_example']['match']
         neg_examples = case['neg_examples']
         feature_dicts = [
             {'DEP': 'dep_', 'TAG': 'tag_'},
             {'DEP': 'dep_', 'TAG': 'tag_', 'LOWER': 'lower_'},
             {'DEP': 'dep_', 'TAG': 'tag_', '_': {'has_valence': 'has_valence'}},
+            # {'DEP': 'dep_', 'TAG': 'tag_', '_': {'valence': 'valence'}},
         ]
         role_pattern_builder = RolePatternBuilder(feature_dicts[0])
         pattern = role_pattern_builder.build(training_match, features=['DEP', 'TAG'])
