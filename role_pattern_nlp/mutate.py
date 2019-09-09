@@ -49,6 +49,7 @@ def yield_tree_level_pattern_variants(role_pattern, training_match, feature_dict
     extended_match_tokens = spacy_pattern_builder.yield_extended_trees(match_tokens)
     doc = util.doc_from_match(training_match)
     for match_tokens in extended_match_tokens:
+        match_tokens = sorted(match_tokens, key=lambda token: token.i)
         token_labels = role_pattern_builder.build_pattern_label_list(
             match_tokens, training_match
         )
@@ -60,7 +61,13 @@ def yield_tree_level_pattern_variants(role_pattern, training_match, feature_dict
         )
         assert len(token_labels) == len(role_pattern.token_labels) + 1
         role_pattern_variant = RolePattern(dependency_pattern_variant, token_labels)
-        role_pattern_variant.token_labels_depth_order = token_labels
+        match_tokens_depth_order = spacy_pattern_builder.util.sort_by_depth(
+            match_tokens
+        )  # Should be same order as the dependency pattern
+        token_labels_depth_order = role_pattern_builder.build_pattern_label_list(
+            match_tokens_depth_order, training_match
+        )
+        role_pattern_variant.token_labels_depth_order = token_labels_depth_order
         role_pattern_variant.builder = role_pattern.builder
         new_training_match = RolePatternMatch(training_match)
         new_training_match.match_tokens = match_tokens

@@ -275,9 +275,7 @@ cases = [
             {
                 'doc': doc16,
                 'match': {
-                    'ant': idxs_to_tokens(
-                        doc16, [1]
-                    ),  # [coffee]
+                    'ant': idxs_to_tokens(doc16, [1]),  # [coffee]
                     'cons': idxs_to_tokens(doc16, [4]),  # [alertness]
                 },
             },
@@ -314,7 +312,7 @@ cases = [
                     'ant': idxs_to_tokens(doc21, [4]),  # [L-theanine]
                     'cons': idxs_to_tokens(doc21, [8]),  # [placebo]
                 },
-            },
+            }
         ],
     },
 ]
@@ -354,9 +352,7 @@ def test_with_custom_extensions():
     match_example = case['training_example']['match']
     # pprint(match_example)
     role_pattern_builder = RolePatternBuilder(feature_dict)
-    role_pattern = role_pattern_builder.build(
-        match_example, validate_pattern=False
-    )
+    role_pattern = role_pattern_builder.build(match_example, validate_pattern=False)
     matches = role_pattern.match(doc)
     assert match_example in matches, 'does not match example'
     # print('passed')
@@ -406,6 +402,15 @@ def test_refine_pattern():
                 assert pos_match in matches
             for neg_match in neg_matches:
                 assert neg_match not in matches
+            break  # Take only the first
+        vis_outpath = 'examples/refined_pattern_vis/pattern_{0}_original.png'.format(
+            case_i
+        )
+        pattern.write_vis(vis_outpath)
+        vis_outpath = 'examples/refined_pattern_vis/pattern_{0}_refined.png'.format(
+            case_i
+        )
+        role_pattern_variant.write_vis(vis_outpath)
 
 
 def test_validate_features():

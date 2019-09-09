@@ -211,7 +211,7 @@ def build_role_pattern(
 
 
 def build_pattern_label_list(match_tokens, match_example):
-    match_tokens = sorted(match_tokens, key=lambda t: t.i)
+    # match_tokens = sorted(match_tokens, key=lambda t: t.i)
     match_token_labels = []
     for w in match_tokens:
         label = None
