@@ -29,9 +29,25 @@ def yield_node_level_pattern_variants(role_pattern, training_match, feature_dict
     spacy_dependency_pattern = role_pattern.spacy_dep_pattern
     match_token_labels = role_pattern.token_labels
     match_tokens = training_match.match_tokens
-    dependency_pattern_variants = spacy_pattern_builder.yield_node_level_pattern_variants(
-        spacy_dependency_pattern, match_tokens, feature_dicts
+    nonlabelled_tokens = [
+        token for token, label in zip(match_tokens, match_token_labels) if label
+    ]
+    # First mutate only the non-labelled match tokens
+    dependency_pattern_variants = list(
+        spacy_pattern_builder.yield_node_level_pattern_variants(
+            spacy_dependency_pattern,
+            match_tokens,
+            feature_dicts,
+            mutate_tokens=nonlabelled_tokens,
+        )
     )
+    # Then all variants
+    dependency_pattern_variants += list(
+        spacy_pattern_builder.yield_node_level_pattern_variants(
+            spacy_dependency_pattern, match_tokens, feature_dicts
+        )
+    )
+    dependency_pattern_variants = util.unique_list(dependency_pattern_variants)
     for dependency_pattern_variant in dependency_pattern_variants:
         assert len(dependency_pattern_variant) == len(spacy_dependency_pattern)
         role_pattern_variant = RolePattern(
