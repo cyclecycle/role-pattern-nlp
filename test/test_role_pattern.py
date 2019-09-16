@@ -62,6 +62,10 @@ text20 = 'In addition to the previous data demonstrating that valproic acid can 
 
 text21 = 'Results revealed that adjunctive L-theanine did not outperform placebo for anxiety reduction on the HAMA (p=0.73) nor insomnia severity on the Insomnia Severity Index (ISI; p=0.35).'
 
+text22 = 'The results highlight a beneficial effect of nutritional supplements on information processing and RPE.'
+
+text23 = 'We also discuss the applied relevance of our results as coffee and tea are among the most prevalent beverages globally.'
+
 doc1 = nlp(text1)
 doc2 = nlp(text2)
 doc3 = nlp(text3)
@@ -83,7 +87,8 @@ doc18 = nlp(text18)
 doc19 = nlp(text19)
 doc20 = nlp(text20)
 doc21 = nlp(text21)
-
+doc22 = nlp(text22)
+doc23 = nlp(text23)
 
 doc14[6]._.set('valence', 'DOWN')
 doc15[3]._.set('valence', 'DOWN')
@@ -117,6 +122,8 @@ docs = [
     doc19,
     doc20,
     doc21,
+    doc22,
+    doc23,
 ]
 
 
@@ -315,6 +322,24 @@ cases = [
             }
         ],
     },
+    {
+        'training_example': {
+            'doc': doc22,
+            'match': {
+                'ant': idxs_to_tokens(doc22, [8]),  # [supplements]
+                'cons': idxs_to_tokens(doc22, [13]),  # [RPE]
+            }
+        },
+        'neg_examples': [
+            {
+                'doc': doc23,
+                'match': {
+                    'ant': idxs_to_tokens(doc23, [8]),  # [results]
+                    'cons': idxs_to_tokens(doc23, [12]),  # [tea]
+                },
+            }
+        ],
+    }
 ]
 
 
@@ -394,7 +419,6 @@ def test_refine_pattern():
             neg_role_pattern_matches,
             feature_dicts=feature_dicts,
         )
-        # assert len(refined_role_pattern_variants) == 2
         for role_pattern_variant in refined_role_pattern_variants:
             matches = [role_pattern_variant.match(d) for d in docs]
             matches = util.flatten_list(matches)

@@ -1,0 +1,48 @@
+[
+  {
+    "SPEC": {
+      "NODE_NAME": "node5"
+    },
+    "PATTERN": {
+      "DEP": "dobj",
+      "TAG": "NN",
+      "LOWER": "effect"
+    }
+  },
+  {
+    "SPEC": {
+      "NODE_NAME": "node8",
+      "NBOR_NAME": "node5",
+      "NBOR_RELOP": ">"
+    },
+    "PATTERN": {
+      "DEP": "nmod",
+      "TAG": "NNS",
+      "LOWER": "supplements"
+    }
+  },
+  {
+    "SPEC": {
+      "NODE_NAME": "node11",
+      "NBOR_NAME": "node8",
+      "NBOR_RELOP": "$--"
+    },
+    "PATTERN": {
+      "DEP": "nmod",
+      "TAG": "NN",
+      "LOWER": "processing"
+    }
+  },
+  {
+    "SPEC": {
+      "NODE_NAME": "node13",
+      "NBOR_NAME": "node11",
+      "NBOR_RELOP": ">"
+    },
+    "PATTERN": {
+      "DEP": "conj",
+      "TAG": "NN",
+      "LOWER": "rpe"
+    }
+  }
+]

@@ -1,0 +1,40 @@
+[
+  {
+    "SPEC": {
+      "NODE_NAME": "node5"
+    },
+    "PATTERN": {
+      "DEP": "dobj"
+    }
+  },
+  {
+    "SPEC": {
+      "NODE_NAME": "node8",
+      "NBOR_NAME": "node5",
+      "NBOR_RELOP": ">"
+    },
+    "PATTERN": {
+      "DEP": "nmod"
+    }
+  },
+  {
+    "SPEC": {
+      "NODE_NAME": "node11",
+      "NBOR_NAME": "node8",
+      "NBOR_RELOP": "$--"
+    },
+    "PATTERN": {
+      "DEP": "nmod"
+    }
+  },
+  {
+    "SPEC": {
+      "NODE_NAME": "node13",
+      "NBOR_NAME": "node11",
+      "NBOR_RELOP": ">"
+    },
+    "PATTERN": {
+      "DEP": "conj"
+    }
+  }
+]
