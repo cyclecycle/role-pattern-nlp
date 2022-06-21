@@ -11,7 +11,7 @@ jsonschema==3.0.1
 more-itertools==7.0.0
 murmurhash==1.0.2
 networkx
-numpy==1.17.0
+numpy==1.22.0
 packaging==19.0
 plac==0.9.6
 pluggy==0.12.0
